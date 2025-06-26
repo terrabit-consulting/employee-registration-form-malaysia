@@ -346,7 +346,9 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       officeUseDate: document.querySelector('[name="officeUseDate"]').value,
     }
   };
-
+/ ✅ Add this line here:
+  formData.authenticatedEmail = localStorage.getItem("userEmail");
+  
   const flowUrl = "https://default801bb2d2c6584e6787728a97c96f3e.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7003fbb3a2f8436789a6895468c71bf1/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-801bb2d2-c658-4e67-8772-8a97c96f3ee2&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=gSF_hOIn6LCfJXa9tfr5z8WrhbH05fq4nay_GBH7LBc"; // Replace with actual Power Automate endpoint
 
   fetch(flowUrl, {
