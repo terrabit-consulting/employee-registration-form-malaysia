@@ -17,14 +17,20 @@ document.getElementById('loginBtn').addEventListener('click', () => {
   auth.signInWithPopup(provider).then(result => {
     const user = result.user;
     if (user) {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('formWrapper').style.display = 'flex';
+      // Hide login section and show form with correct layout class
+      document.getElementById('loginSection').classList.add("hidden");
+      const formWrapper = document.getElementById('formWrapper');
+      formWrapper.classList.remove("hidden");
+      formWrapper.classList.add("visible-flex");
+
+      // Store user email for tracking
       localStorage.setItem("userEmail", user.email);
     }
   }).catch(error => {
     alert("Login failed: " + error.message);
   });
 });
+
 
 // script.js
 
