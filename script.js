@@ -50,21 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-// 🔐 Login Button
-document.getElementById('loginBtn').addEventListener('click', () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(result => {
-    const user = result.user;
-    if (user) {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('formWrapper').style.display = 'flex';
-      localStorage.setItem("userEmail", user.email);
-    }
-  }).catch(error => {
-    alert("Login failed: " + error.message);
-  });
-});
-
 
 // script.js
 
