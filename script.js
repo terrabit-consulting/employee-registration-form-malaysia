@@ -11,6 +11,42 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+document.addEventListener('DOMContentLoaded', () => {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('formWrapper').style.display = 'flex';
+      showSection(currentSection);
+      toggleMalaysiaFields();
+      toggleCitizenshipFields();
+      localStorage.setItem("userEmail", user.email);
+    } else {
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('formWrapper').style.display = 'none';
+      localStorage.removeItem("userEmail");
+    }
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then(result => {
+      const user = result.user;
+      if (user) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('formWrapper').style.display = 'flex';
+        showSection(currentSection);
+        toggleMalaysiaFields();
+        toggleCitizenshipFields();
+        localStorage.setItem("userEmail", user.email);
+      }
+    }).catch(error => {
+      alert("Login failed: " + error.message);
+    });
+  });
+});
+
+
+
 auth.onAuthStateChanged(user => {
   if (user) {
     document.getElementById('loginSection').style.display = 'none';
