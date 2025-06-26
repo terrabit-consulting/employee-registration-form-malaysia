@@ -27,7 +27,7 @@
       margin-top: 10px;
     }
 
-    a {
+    a, button {
       display: inline-block;
       margin-top: 30px;
       text-decoration: none;
@@ -36,10 +36,21 @@
       padding: 10px 20px;
       border-radius: 6px;
       font-size: 1rem;
+      border: none;
+      cursor: pointer;
     }
 
-    a:hover {
+    a:hover, button:hover {
       background-color: #125ea7;
+    }
+
+    #logoutBtn {
+      margin-left: 10px;
+      background-color: #d32f2f;
+    }
+
+    #logoutBtn:hover {
+      background-color: #b71c1c;
     }
   </style>
 </head>
@@ -53,9 +64,42 @@
   <p>Your employment application has been submitted successfully.</p>
   <p>A copy of your submitted data in Excel format has been sent to the email address you provided in the submitted form. Please check your inbox for reference.</p>
 
-
-  <!-- Back to Home -->
+  <!-- Back to Home + Logout -->
   <a href="index.html">← Back to Form</a>
+  <button id="logoutBtn" style="display: none;">Logout</button>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
+      authDomain: "employment-form-login.firebaseapp.com",
+      projectId: "employment-form-login",
+      storageBucket: "employment-form-login.firebasestorage.app",
+      messagingSenderId: "784854094144",
+      appId: "1:784854094144:web:5ec3f9a5120717f806eaa5",
+      measurementId: "G-MYBD4VRD2M"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Show logout button if user is logged in
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+      }
+    });
+
+    // Handle logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      firebase.auth().signOut().then(() => {
+        alert('You have been logged out.');
+        localStorage.removeItem("userEmail");
+        window.location.href = "index.html";
+      });
+    });
+  </script>
 
 </body>
 </html>
