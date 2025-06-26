@@ -11,6 +11,23 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('formWrapper').style.display = 'flex';
+    showSection(currentSection);
+    toggleMalaysiaFields();
+    toggleCitizenshipFields();
+    localStorage.setItem("userEmail", user.email);
+  } else {
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('formWrapper').style.display = 'none';
+    localStorage.removeItem("userEmail");
+  }
+});
+
+
+
 // 🔐 Login Button
 document.getElementById('loginBtn').addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
