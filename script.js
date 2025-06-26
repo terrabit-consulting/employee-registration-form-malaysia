@@ -16,22 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const formWrapper = document.getElementById('formWrapper');
 
   auth.onAuthStateChanged(user => {
-  const loading = document.getElementById('loading');
-  if (loading) loading.style.display = 'none';
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
 
-  if (user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('formWrapper').style.display = 'flex';
-    showSection(currentSection);
-    toggleMalaysiaFields();
-    toggleCitizenshipFields();
-    localStorage.setItem("userEmail", user.email);
-  } else {
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('formWrapper').style.display = 'none';
-    localStorage.removeItem("userEmail");
-  }
-});
+    if (user) {
+      loginSection.style.display = 'none';
+      formWrapper.style.display = 'flex';
+      showSection(currentSection);
+      toggleMalaysiaFields();
+      toggleCitizenshipFields();
+      localStorage.setItem("userEmail", user.email);
+    } else {
+      loginSection.style.display = 'block';
+      formWrapper.style.display = 'none';
+      localStorage.removeItem("userEmail");
+    }
+  });
 
   document.getElementById('loginBtn').addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Login failed: " + error.message);
     });
   });
+
+  // These lines from your bottom block:
+  showSection(currentSection);
+  toggleMalaysiaFields();
+  toggleCitizenshipFields();
 });
 
 // script.js
@@ -394,10 +399,4 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       console.error("⚠️ Submission error:", err);
       alert("⚠️ Submission error: " + err.message);
     });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  showSection(currentSection);
-  toggleMalaysiaFields();
-  toggleCitizenshipFields();
 });
