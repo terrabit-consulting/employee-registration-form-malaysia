@@ -12,17 +12,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 document.addEventListener('DOMContentLoaded', () => {
+  const loginSection = document.getElementById('loginSection');
+  const formWrapper = document.getElementById('formWrapper');
+
   auth.onAuthStateChanged(user => {
     if (user) {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('formWrapper').style.display = 'flex';
+      loginSection.style.display = 'none';
+      formWrapper.style.display = 'flex';
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
       localStorage.setItem("userEmail", user.email);
     } else {
-      document.getElementById('loginSection').style.display = 'block';
-      document.getElementById('formWrapper').style.display = 'none';
+      loginSection.style.display = 'block';
+      formWrapper.style.display = 'none';
       localStorage.removeItem("userEmail");
     }
   });
@@ -32,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     auth.signInWithPopup(provider).then(result => {
       const user = result.user;
       if (user) {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('formWrapper').style.display = 'flex';
+        loginSection.style.display = 'none';
+        formWrapper.style.display = 'flex';
         showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
@@ -44,26 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('formWrapper').style.display = 'flex';
-    showSection(currentSection);
-    toggleMalaysiaFields();
-    toggleCitizenshipFields();
-    localStorage.setItem("userEmail", user.email);
-  } else {
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('formWrapper').style.display = 'none';
-    localStorage.removeItem("userEmail");
-  }
-});
-
-
-
 // 🔐 Login Button
 document.getElementById('loginBtn').addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
