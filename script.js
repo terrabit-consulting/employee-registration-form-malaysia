@@ -16,19 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const formWrapper = document.getElementById('formWrapper');
 
   auth.onAuthStateChanged(user => {
-    if (user) {
-      loginSection.style.display = 'none';
-      formWrapper.style.display = 'flex';
-      showSection(currentSection);
-      toggleMalaysiaFields();
-      toggleCitizenshipFields();
-      localStorage.setItem("userEmail", user.email);
-    } else {
-      loginSection.style.display = 'block';
-      formWrapper.style.display = 'none';
-      localStorage.removeItem("userEmail");
-    }
-  });
+  const loading = document.getElementById('loading');
+  if (loading) loading.style.display = 'none';
+
+  if (user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('formWrapper').style.display = 'flex';
+    showSection(currentSection);
+    toggleMalaysiaFields();
+    toggleCitizenshipFields();
+    localStorage.setItem("userEmail", user.email);
+  } else {
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('formWrapper').style.display = 'none';
+    localStorage.removeItem("userEmail");
+  }
+});
 
   document.getElementById('loginBtn').addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
