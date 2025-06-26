@@ -8,17 +8,17 @@
 </head>
 <body>
   <div id="loginSection" style="text-align: center; margin: 40px;">
-    <h2>Sign in to access the application form</h2>
-    <button id="loginBtn">Sign in with Google</button>
-  </div>
-  <div class="form-wrapper" id="formWrapper" style="display: none;">
-  <div class="form-wrapper">
-    <div class="form-container">
-      <div class="progress-bar">
-        <div class="progress" id="progress"></div>
-      </div>
-      <form id="multiStepForm">
-        
+  <h2>Sign in to access the application form</h2>
+  <button id="loginBtn">Sign in with Google</button>
+</div>
+
+<!-- ✅ Only one form-wrapper and form-container -->
+<div id="formWrapper" class="form-wrapper hidden">
+  <div class="form-container">
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+      <form id="multiStepForm">        
         <div class="form-section">
           <h2>Personal Particulars</h2>
           <label>Position Applied For *</label>
