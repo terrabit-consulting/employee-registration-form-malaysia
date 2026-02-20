@@ -500,7 +500,7 @@ button[onclick^="add"]{
 
 /* Bigger, clearer logo */
 .brand-logo{
-  height: 88px;
+  height: 110px;
   width: auto;
 }
 
@@ -517,6 +517,6 @@ button[onclick^="add"]{
     padding: 10px 12px 8px;
     border-radius: 14px;
   }
-  .brand-logo{ height: 68px; }
+  .brand-logo{ height: 85px; }
   .page-title{ font-size: 17px; }
 }
