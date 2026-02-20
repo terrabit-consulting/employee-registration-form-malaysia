@@ -1,6 +1,7 @@
 
-// ===== Add/Remove block support for Add More sections =====
+// ===== Add/Remove button for "Add More" blocks =====
 function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
+  if (!blockEl || !containerEl) return;
   if (blockEl.querySelector(".remove-block-btn")) return;
 
   const btn = document.createElement("button");
@@ -22,18 +23,18 @@ function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
 
 function initRemoveButtons() {
   const setups = [
-    { container: "employmentContainer", block: ".employment-block" },
-    { container: "educationContainer", block: ".edu-block" },
-    { container: "familyContainer", block: ".family-block" },
-    { container: "certContainer", block: ".cert-block" }
+    { container: "employmentSection", block: ".employment-block" },
+    { container: "eduSection", block: ".edu-block" },
+    { container: "familySection", block: ".family-block" },
+    { container: "certSection", block: ".cert-block" }
   ];
 
-  setups.forEach(s => {
+  setups.forEach((s) => {
     const c = document.getElementById(s.container);
     if (!c) return;
     const blocks = c.querySelectorAll(s.block);
     blocks.forEach((b, i) => {
-      if (i === 0) return;
+      if (i === 0) return; // keep first block
       addRemoveButton(b, c, s.block, 1);
     });
   });
@@ -42,46 +43,43 @@ function initRemoveButtons() {
 
 
 // ===== Numeric-only guards for phone & bank fields =====
+
 function enforceNumericOnly(el) {
   el.value = el.value.replace(/[^0-9]/g, "");
 }
 
-function attachNumericGuards() {
+function bindNumericGuard(input){
+  if (!input || input.dataset.numericBound === "1") return;
+  input.dataset.numericBound = "1";
+
+  input.addEventListener("input", () => enforceNumericOnly(input));
+  input.addEventListener("paste", () => setTimeout(() => enforceNumericOnly(input), 0));
+}
+
+/**
+ * Attach numeric-only input guards.
+ * Call with a specific root element (e.g., a newly cloned block) to bind listeners only inside it.
+ */
+function attachNumericGuards(root = document) {
   const selectors = [
-    'input[name="mobileNumber"]',
+    'input[name="mobile2"]',
     'input[name="telHome"]',
     'input[name="whatsappNo"]',
-    'input[name="bankAccountNumber"]'
+    'input[name="bankAccount"]'
   ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(input => {
-      input.addEventListener("input", () => enforceNumericOnly(input));
-      input.addEventListener("paste", () => {
-        setTimeout(() => enforceNumericOnly(input), 0);
-      });
-    });
+
+  selectors.forEach((sel) => {
+    root.querySelectorAll(sel).forEach((input) => bindNumericGuard(input));
   });
 }
 
-
-// 🔐 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
-  authDomain: "employment-form-login.firebaseapp.com",
-  projectId: "employment-form-login",
-  storageBucket: "employment-form-login.firebasestorage.app",
-  messagingSenderId: "784854094144",
-  appId: "1:784854094144:web:5ec3f9a5120717f806eaa5",
-  measurementId: "G-MYBD4VRD2M"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 
 
 // ===== Excel-safe input guards (prevents formula injection) =====
 function sanitizeExcelValue(raw) {
   if (raw === null || raw === undefined) return raw;
   const s = String(raw);
+
   // If the first non-space char is one of these, Excel may treat it as a formula in exports
   // Common protection list: = + - @
   if (/^\s*[=+\-@]/.test(s)) {
@@ -109,29 +107,47 @@ function enforceSafeLeadingChars(el) {
   el.value = v;
 }
 
-function attachExcelSafeGuards() {
-  // Textareas: apply strict rule
-  document.querySelectorAll("textarea").forEach((ta) => {
-    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
-  });
+function bindExcelSafeGuard(el){
+  if (!el || el.dataset.excelSafeBound === "1") return;
+  el.dataset.excelSafeBound = "1";
 
-  // Generic text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
-  document.querySelectorAll('input[type="text"]').forEach((inp) => {
+  el.addEventListener("blur", () => enforceSafeLeadingChars(el));
+}
+
+/**
+ * Attach Excel-safe guards for text inputs and textareas.
+ * Call with a specific root element (e.g., a newly cloned block) to bind listeners only inside it.
+ */
+function attachExcelSafeGuards(root = document) {
+  // Textareas: apply strict rule
+  root.querySelectorAll("textarea").forEach((ta) => bindExcelSafeGuard(ta));
+
+  // Text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
+  root.querySelectorAll('input[type="text"]').forEach((inp) => {
     // If any field must allow special leading chars, add its name into this set.
     const skipNames = new Set([]);
     if (skipNames.has(inp.name)) return;
 
-    inp.addEventListener("blur", () => {
-      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
-    });
+    bindExcelSafeGuard(inp);
   });
 }
-
+// 🔐 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
+  authDomain: "employment-form-login.firebaseapp.com",
+  projectId: "employment-form-login",
+  storageBucket: "employment-form-login.firebasestorage.app",
+  messagingSenderId: "784854094144",
+  appId: "1:784854094144:web:5ec3f9a5120717f806eaa5",
+  measurementId: "G-MYBD4VRD2M"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
 document.addEventListener('DOMContentLoaded', () => {
+  attachExcelSafeGuards();
   attachNumericGuards();
   initRemoveButtons();
-  attachExcelSafeGuards();
   const loginSection = document.getElementById('loginSection');
   const formWrapper = document.getElementById('formWrapper');
 
@@ -141,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (user) {
       loginSection.style.display = 'none';
-      formWrapper.style.display = 'block';
+      formWrapper.style.display = 'flex';
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
@@ -159,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = result.user;
       if (user) {
         loginSection.style.display = 'none';
-        formWrapper.style.display = 'block';
+        formWrapper.style.display = 'flex';
         showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
@@ -350,44 +366,106 @@ function toggleMarriedFields(selectElem) {
 
 function addEmployment() {
   const container = document.getElementById('employmentSection');
-  const firstBlock = container.querySelector('.employment-block');
+  const firstBlock = container?.querySelector('.employment-block');
   if (!firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, textarea').forEach(input => input.value = '');
+
+  // clear values in cloned block
+  clone.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
+  });
+
   container.appendChild(clone);
+
+  // Add a remove button to the new block (keep at least 1 block)
+  addRemoveButton(clone, container, '.employment-block', 1);
+
+  // Re-attach guards for the new inputs only
+  attachNumericGuards(clone);
+  attachExcelSafeGuards(clone);
 }
 
 function addEducation() {
   const container = document.getElementById('eduSection');
-  const firstBlock = container.querySelector('.edu-block');
+  const firstBlock = container?.querySelector('.edu-block');
   if (!firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+
+  // clear values in cloned block
+  clone.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
   });
+
   container.appendChild(clone);
+
+  // Add a remove button to the new block (keep at least 1 block)
+  addRemoveButton(clone, container, '.edu-block', 1);
+
+  // Re-attach guards for the new inputs only
+  attachNumericGuards(clone);
+  attachExcelSafeGuards(clone);
 }
 
 function addFamily() {
   const container = document.getElementById('familySection');
-  const firstBlock = container.querySelector('.family-block');
+  const firstBlock = container?.querySelector('.family-block');
   if (!firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+
+  // clear values in cloned block
+  clone.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
   });
+
   container.appendChild(clone);
+
+  // Add a remove button to the new block (keep at least 1 block)
+  addRemoveButton(clone, container, '.family-block', 1);
+
+  // Re-attach guards for the new inputs only
+  attachNumericGuards(clone);
+  attachExcelSafeGuards(clone);
 }
 
 function addCertification() {
   const container = document.getElementById('certSection');
-  const firstBlock = container.querySelector('.cert-block');
+  const firstBlock = container?.querySelector('.cert-block');
   if (!firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input').forEach(input => input.value = '');
+
+  // clear values in cloned block
+  clone.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
+  });
+
   container.appendChild(clone);
+
+  // Add a remove button to the new block (keep at least 1 block)
+  addRemoveButton(clone, container, '.cert-block', 1);
+
+  // Re-attach guards for the new inputs only
+  attachNumericGuards(clone);
+  attachExcelSafeGuards(clone);
 }
 function extractGroup(selector, fields) {
   const blocks = document.querySelectorAll(selector);
