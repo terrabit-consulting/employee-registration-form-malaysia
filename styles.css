@@ -5,8 +5,47 @@ body {
   background: #f4f4f4;
 }
 
+
+/* ===== Form Header (Logo + Title) ===== */
+.form-header {
+  text-align: center;
+  padding: 26px 18px;
+  background: linear-gradient(to right, #f8fbff, #ffffff);
+  border-bottom: 1px solid #eaeaea;
+}
+
+.header-logo {
+  max-width: 190px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.form-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1f3c88;
+}
+
+.mandatory-note {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.mandatory-note .asterisk {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+/* Keep header corners aligned with wrapper rounding */
+.form-wrapper .form-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+
 .form-wrapper {
-  display: flex;
+  display: block;
   max-width: 1100px;
   margin: 30px auto;
   background: white;
@@ -16,23 +55,9 @@ body {
 }
 
 .form-container {
+  width: 100%;
   flex: 3;
   padding: 30px;
-}
-
-.form-logo {
-  flex: 1;
-  padding: 30px;
-  background: #fafafa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-left: 1px solid #e0e0e0;
-}
-
-.form-logo img {
-  max-width: 100%;
-  height: auto;
 }
 
 label {
@@ -143,17 +168,7 @@ button:hover {
   border: 2px solid red !important;
 }
 
-@media (max-width: 768px) {
-  .form-wrapper {
-    flex-direction: column;
-  }
-
-  .form-logo {
-    border-left: none;
-    border-top: 1px solid #e0e0e0;
-  }
-
-  .button-row {
+@media (max-width: 768px) {.button-row {
     text-align: center;
   }
 
