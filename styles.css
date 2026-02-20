@@ -239,3 +239,100 @@ button[onclick^="add"]{
     width: 170px;
   }
 }
+
+/* ===== Page Header (like reference screenshot) ===== */
+.page-header{
+  background:#ffffff;
+  padding: 10px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-row{
+  max-width: 980px;
+  margin: 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand-logo{
+  height: 44px;
+  width: auto;
+}
+
+.brand-text{
+  text-align:right;
+  line-height: 1.15;
+}
+
+.brand-name{
+  font-weight: 800;
+  color: #d35400; /* close to your orange */
+  font-size: 16px;
+}
+
+.brand-link{
+  font-size: 12px;
+  color: #1f3c88;
+  text-decoration: underline;
+}
+
+.title-bar{
+  max-width: 980px;
+  margin: 10px auto 8px;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding: 8px 10px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  border-radius: 6px;
+}
+
+.page-header .mandatory-note{
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Center loading + login properly */
+#loading{
+  max-width: 980px;
+  margin: 18px auto;
+  text-align:center;
+  color: var(--muted);
+}
+
+#loginSection{
+  max-width: 720px;
+  margin: 18px auto 22px !important;
+  text-align:center;
+}
+
+/* Keep login button centered and full width */
+#loginBtn{
+  width: 100%;
+  max-width: 520px;
+}
+
+/* Reduce top white space: remove old top header styling if any */
+.form-header{ display:none; }
+
+/* Keep form card closer to header */
+.form-container{
+  margin: 14px auto 48px;
+}
+
+/* Responsive header */
+@media (max-width: 520px){
+  .brand-row{
+    flex-direction: column;
+    align-items: center;
+  }
+  .brand-text{ text-align:center; }
+  .brand-logo{ height: 40px; }
+  .title-bar{ border-radius: 10px; }
+}
