@@ -25,31 +25,31 @@ body{
 /* ===== Top Header (Logo + Title) ===== */
 .form-header{
   text-align: center;
-  padding: 34px 18px 18px;
-  background: #fff; /* match logo background */
+  padding: 18px 14px 10px; /* reduced top space */
+  background: #fff;
   border-bottom: 1px solid var(--border);
 }
 
 .header-logo{
-  width: 220px;
-  max-width: 80vw;
+  width: 190px;
+  max-width: 70vw;
   height: auto;
   display: inline-block;
-  margin-bottom: 10px;
+  margin: 0 0 6px; /* tighter */
 }
 
 .form-header h1{
   margin: 0;
-  font-size: 32px;
-  line-height: 1.2;
+  font-size: 28px; /* slightly smaller */
+  line-height: 1.15;
   color: var(--primary);
   font-weight: 800;
   letter-spacing: .2px;
 }
 
 .mandatory-note{
-  margin: 10px 0 0;
-  font-size: 14px;
+  margin: 6px 0 0; /* tighter */
+  font-size: 13.5px;
   color: var(--muted);
 }
 
@@ -77,7 +77,7 @@ body{
 /* ===== Form Card ===== */
 .form-container{
   max-width: 980px;
-  margin: 18px auto 48px;
+  margin: 12px auto 40px;
   padding: 26px 26px 18px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -211,18 +211,27 @@ button[onclick^="add"]{
 
 /* ===== Responsive ===== */
 @media (max-width: 900px){
+  .form-header{ padding: 14px 12px 8px; }
+  .header-logo{ width: 160px; }
+  .form-header h1{ font-size: 22px; }
+  .mandatory-note{ font-size: 13px; }
   .form-container{
-    margin: 14px 12px 40px;
+    margin: 10px 12px 34px;
     padding: 20px 16px 14px;
   }
+  .form-section h2{ font-size: 22px; }
+}
   .form-section h2{ font-size: 22px; }
   .form-header h1{ font-size: 26px; }
 }
 
 @media (max-width: 520px){
-  .button-row{
-    justify-content: center;
-  }
+  .form-header{ padding: 12px 10px 8px; }
+  .header-logo{ width: 140px; }
+  .form-header h1{ font-size: 20px; }
+  .button-row{ justify-content: center; }
+  button{ width: 100%; }
+}
   button{
     width: 100%;
   }
