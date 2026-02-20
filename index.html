@@ -3,17 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Employment Application Form</title>
+  <title>Employment Registration Form</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="loading" style="text-align: center; margin: 40px;">Checking authentication status...</div>
-  <div id="loginSection" style="text-align: center; margin: 40px;">
+  
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="page-header-inner">
+<div class="brand-row">
+      <img src="logo.png" alt="Terrabit Consulting Logo" class="brand-logo" />
+      <div class="brand-text">
+        <div class="brand-name">Terrabit Consulting Sdn Bhd</div>
+        <a class="brand-link" href="https://www.terrabit-consulting.com" target="_blank" rel="noopener">www.terrabit-consulting.com</a>
+      </div>
+    </div>
+
+    <div class="page-title">Employment Registration Form</div>
+    <div class="mandatory-note">Fields marked with <span class="asterisk">*</span> are mandatory.</div>
+    </div>
+</header>
+
+<div id="loading">Checking authentication status...</div>
+  <div id="loginSection">
     <h2>Sign in to access the application form</h2>
     <button id="loginBtn">Sign in with Google</button>
   </div>
-  <div class="form-wrapper" id="formWrapper" style="display: none;">
-    <div class="form-container">
+  <div id="formWrapper" style="display: none;">
+<div class="form-container">
       <div class="progress-bar">
         <div class="progress" id="progress"></div>
       </div>
@@ -823,10 +840,7 @@
         </div>
       </form>
     </div>
-    <div class="form-logo">
-      <img src="logo.png" alt="Company Logo" />
-    </div>
-  </div>
+</div>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="script.js?v=1.0.14"></script>
