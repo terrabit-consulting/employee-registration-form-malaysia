@@ -1,3 +1,69 @@
+
+// ===== Add/Remove block support for Add More sections =====
+function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
+  if (blockEl.querySelector(".remove-block-btn")) return;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "remove-block-btn";
+  btn.textContent = "Remove";
+
+  btn.addEventListener("click", () => {
+    const blocks = containerEl.querySelectorAll(blockSelector);
+    if (blocks.length <= minBlocks) {
+      alert("At least one entry is required.");
+      return;
+    }
+    blockEl.remove();
+  });
+
+  blockEl.appendChild(btn);
+}
+
+function initRemoveButtons() {
+  const setups = [
+    { container: "employmentContainer", block: ".employment-block" },
+    { container: "educationContainer", block: ".edu-block" },
+    { container: "familyContainer", block: ".family-block" },
+    { container: "certContainer", block: ".cert-block" }
+  ];
+
+  setups.forEach(s => {
+    const c = document.getElementById(s.container);
+    if (!c) return;
+    const blocks = c.querySelectorAll(s.block);
+    blocks.forEach((b, i) => {
+      if (i === 0) return;
+      addRemoveButton(b, c, s.block, 1);
+    });
+  });
+}
+
+
+
+// ===== Numeric-only guards for phone & bank fields =====
+function enforceNumericOnly(el) {
+  el.value = el.value.replace(/[^0-9]/g, "");
+}
+
+function attachNumericGuards() {
+  const selectors = [
+    'input[name="mobileNumber"]',
+    'input[name="telHome"]',
+    'input[name="whatsappNo"]',
+    'input[name="bankAccountNumber"]'
+  ];
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(input => {
+      input.addEventListener("input", () => enforceNumericOnly(input));
+      input.addEventListener("paste", () => {
+        setTimeout(() => enforceNumericOnly(input), 0);
+      });
+    });
+  });
+}
+
+
 // 🔐 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
@@ -63,6 +129,8 @@ function attachExcelSafeGuards() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  attachNumericGuards();
+  initRemoveButtons();
   attachExcelSafeGuards();
   const loginSection = document.getElementById('loginSection');
   const formWrapper = document.getElementById('formWrapper');
