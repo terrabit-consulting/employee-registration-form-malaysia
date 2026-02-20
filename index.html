@@ -7,18 +7,27 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="loading" style="text-align: center; margin: 40px;">Checking authentication status...</div>
-  <div id="loginSection" style="text-align: center; margin: 40px;">
+  
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="brand-row">
+      <img src="logo.png" alt="Terrabit Consulting Logo" class="brand-logo" />
+      <div class="brand-text">
+        <div class="brand-name">Terrabit Consulting Sdn Bhd</div>
+        <a class="brand-link" href="https://www.terrabit-consulting.com" target="_blank" rel="noopener">www.terrabit-consulting.com</a>
+      </div>
+    </div>
+
+    <div class="title-bar">EMPLOYMENT REGISTRATION FORM</div>
+    <div class="mandatory-note">Fields marked with <span class="asterisk">*</span> are mandatory.</div>
+  </header>
+
+<div id="loading">Checking authentication status...</div>
+  <div id="loginSection">
     <h2>Sign in to access the application form</h2>
     <button id="loginBtn">Sign in with Google</button>
   </div>
   <div id="formWrapper" style="display: none;">
-    
-  <div class="form-header">
-    <img src="logo.png" alt="Terrabit Consulting Logo" class="header-logo" />
-    <h1>Employment Registration Form</h1>
-    <p class="mandatory-note">Fields marked with <span class="asterisk">*</span> are mandatory.</p>
-  </div>
 <div class="form-container">
       <div class="progress-bar">
         <div class="progress" id="progress"></div>
