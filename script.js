@@ -1,6 +1,6 @@
-// ===== Add/Remove button for "Add More" blocks =====
+
+// ===== Add/Remove block support for Add More sections =====
 function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
-  if (!blockEl || !containerEl) return;
   if (blockEl.querySelector(".remove-block-btn")) return;
 
   const btn = document.createElement("button");
@@ -22,18 +22,18 @@ function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
 
 function initRemoveButtons() {
   const setups = [
-    { container: "employmentSection", block: ".employment-block" },
-    { container: "eduSection", block: ".edu-block" },
-    { container: "familySection", block: ".family-block" },
-    { container: "certSection", block: ".cert-block" }
+    { container: "employmentContainer", block: ".employment-block" },
+    { container: "educationContainer", block: ".edu-block" },
+    { container: "familyContainer", block: ".family-block" },
+    { container: "certContainer", block: ".cert-block" }
   ];
 
-  setups.forEach((s) => {
+  setups.forEach(s => {
     const c = document.getElementById(s.container);
     if (!c) return;
     const blocks = c.querySelectorAll(s.block);
     blocks.forEach((b, i) => {
-      if (i === 0) return; // keep first block
+      if (i === 0) return;
       addRemoveButton(b, c, s.block, 1);
     });
   });
@@ -48,50 +48,17 @@ function enforceNumericOnly(el) {
 
 function attachNumericGuards() {
   const selectors = [
-    'input[name="mobile2"]',
+    'input[name="mobileNumber"]',
     'input[name="telHome"]',
     'input[name="whatsappNo"]',
-    'input[name="bankAccount"]'
+    'input[name="bankAccountNumber"]'
   ];
-
-  selectors.forEach((sel) => {
-    document.querySelectorAll(sel).forEach((input) => {
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(input => {
       input.addEventListener("input", () => enforceNumericOnly(input));
-      input.addEventListener("paste", () => setTimeout(() => enforceNumericOnly(input), 0));
-    });
-  });
-}
-
-
-
-// ===== Excel-safe input guards (prevents formula injection) =====
-function sanitizeExcelValue(raw) {
-  if (raw === null || raw === undefined) return raw;
-  const s = String(raw);
-  // If first non-space char is one of these, Excel may treat it as a formula
-  // Common list: = + - @
-  if (/^\s*[=+\-@]/.test(s)) return "'" + s;
-  return s;
-}
-
-// Ensure first non-space char starts with A-Z/a-z/0-9 (strip leading special chars).
-function enforceSafeLeadingChars(el) {
-  if (!el || typeof el.value !== "string") return;
-  let v = el.value;
-  v = v.replace(/^\s+/, "");
-  v = v.replace(/^[^A-Za-z0-9]+/, "");
-  v = sanitizeExcelValue(v);
-  el.value = v;
-}
-
-function attachExcelSafeGuards() {
-  document.querySelectorAll("textarea").forEach((ta) => {
-    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
-  });
-
-  document.querySelectorAll('input[type="text"]').forEach((inp) => {
-    inp.addEventListener("blur", () => {
-      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
+      input.addEventListener("paste", () => {
+        setTimeout(() => enforceNumericOnly(input), 0);
+      });
     });
   });
 }
@@ -110,15 +77,65 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+
+// ===== Excel-safe input guards (prevents formula injection) =====
+function sanitizeExcelValue(raw) {
+  if (raw === null || raw === undefined) return raw;
+  const s = String(raw);
+  // If the first non-space char is one of these, Excel may treat it as a formula in exports
+  // Common protection list: = + - @
+  if (/^\s*[=+\-@]/.test(s)) {
+    return "'" + s; // prefix apostrophe to force literal text in Excel
+  }
+  return s;
+}
+
+// For textarea/text fields: ensure first non-space character starts with A-Z / a-z / 0-9.
+// If it starts with special chars, strip them (keeps the rest). Also neutralize Excel formula chars.
+function enforceSafeLeadingChars(el) {
+  if (!el || typeof el.value !== "string") return;
+
+  let v = el.value;
+
+  // Remove leading whitespace for the "first character" rule (internal spaces remain)
+  v = v.replace(/^\s+/, "");
+
+  // Strip leading non-alphanumeric characters
+  v = v.replace(/^[^A-Za-z0-9]+/, "");
+
+  // Neutralize Excel-formula leading chars (if still present)
+  v = sanitizeExcelValue(v);
+
+  el.value = v;
+}
+
+function attachExcelSafeGuards() {
+  // Textareas: apply strict rule
+  document.querySelectorAll("textarea").forEach((ta) => {
+    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
+  });
+
+  // Generic text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
+  document.querySelectorAll('input[type="text"]').forEach((inp) => {
+    // If any field must allow special leading chars, add its name into this set.
+    const skipNames = new Set([]);
+    if (skipNames.has(inp.name)) return;
+
+    inp.addEventListener("blur", () => {
+      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
+    });
+  });
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
+  attachNumericGuards();
+  initRemoveButtons();
+  attachExcelSafeGuards();
   const loginSection = document.getElementById('loginSection');
   const formWrapper = document.getElementById('formWrapper');
 
-  
-  attachExcelSafeGuards();
-  attachNumericGuards();
-  initRemoveButtons();
-auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(user => {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
@@ -337,8 +354,7 @@ function addEmployment() {
   if (!firstBlock) return;
   const clone = firstBlock.cloneNode(true);
   clone.querySelectorAll('input, textarea').forEach(input => input.value = '');
-  container.appendChild(clone);  // Add Remove button for newly added block
-  addRemoveButton(clone, container, ".employment-block", 1);
+  container.appendChild(clone);
 }
 
 function addEducation() {
@@ -350,8 +366,7 @@ function addEducation() {
     el.value = '';
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
   });
-  container.appendChild(clone);  // Add Remove button for newly added block
-  addRemoveButton(clone, container, ".edu-block", 1);
+  container.appendChild(clone);
 }
 
 function addFamily() {
@@ -363,8 +378,7 @@ function addFamily() {
     el.value = '';
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
   });
-  container.appendChild(clone);  // Add Remove button for newly added block
-  addRemoveButton(clone, container, ".family-block", 1);
+  container.appendChild(clone);
 }
 
 function addCertification() {
@@ -373,8 +387,7 @@ function addCertification() {
   if (!firstBlock) return;
   const clone = firstBlock.cloneNode(true);
   clone.querySelectorAll('input').forEach(input => input.value = '');
-  container.appendChild(clone);  // Add Remove button for newly added block
-  addRemoveButton(clone, container, ".cert-block", 1);
+  container.appendChild(clone);
 }
 function extractGroup(selector, fields) {
   const blocks = document.querySelectorAll(selector);
