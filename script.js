@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (user) {
       loginSection.style.display = 'none';
-      formWrapper.style.display = 'flex';
+      formWrapper.style.display = 'block';
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = result.user;
       if (user) {
         loginSection.style.display = 'none';
-        formWrapper.style.display = 'flex';
+        formWrapper.style.display = 'block';
         showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
