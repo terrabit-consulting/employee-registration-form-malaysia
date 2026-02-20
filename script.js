@@ -1,7 +1,19 @@
 
-// ===== Add/Remove block support for Add More sections =====
+// ===== Add/Remove button for "Add More" blocks =====
 function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
+  if (!blockEl || !containerEl) return;
+
+  // If already exists, don't add again
   if (blockEl.querySelector(".remove-block-btn")) return;
+
+  // Wrap in a header row so it's always visible
+  let header = blockEl.querySelector(".block-actions");
+  if (!header) {
+    header = document.createElement("div");
+    header.className = "block-actions";
+    // insert at the very top of the block
+    blockEl.insertBefore(header, blockEl.firstChild);
+  }
 
   const btn = document.createElement("button");
   btn.type = "button";
@@ -17,23 +29,23 @@ function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
     blockEl.remove();
   });
 
-  blockEl.appendChild(btn);
+  header.appendChild(btn);
 }
 
 function initRemoveButtons() {
   const setups = [
-    { container: "employmentContainer", block: ".employment-block" },
-    { container: "educationContainer", block: ".edu-block" },
-    { container: "familyContainer", block: ".family-block" },
-    { container: "certContainer", block: ".cert-block" }
+    { container: "employmentSection", block: ".employment-block" },
+    { container: "eduSection", block: ".edu-block" },
+    { container: "familySection", block: ".family-block" },
+    { container: "certSection", block: ".cert-block" }
   ];
 
-  setups.forEach(s => {
+  setups.forEach((s) => {
     const c = document.getElementById(s.container);
     if (!c) return;
     const blocks = c.querySelectorAll(s.block);
     blocks.forEach((b, i) => {
-      if (i === 0) return;
+      if (i === 0) return; // keep first block
       addRemoveButton(b, c, s.block, 1);
     });
   });
@@ -46,19 +58,52 @@ function enforceNumericOnly(el) {
   el.value = el.value.replace(/[^0-9]/g, "");
 }
 
-function attachNumericGuards() {
+function attachNumericGuards(root = document) {
   const selectors = [
-    'input[name="mobileNumber"]',
+    'input[name="mobile2"]',
     'input[name="telHome"]',
     'input[name="whatsappNo"]',
-    'input[name="bankAccountNumber"]'
+    'input[name="bankAccount"]'
   ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(input => {
+
+  selectors.forEach((sel) => {
+    root.querySelectorAll(sel).forEach((input) => {
       input.addEventListener("input", () => enforceNumericOnly(input));
-      input.addEventListener("paste", () => {
-        setTimeout(() => enforceNumericOnly(input), 0);
-      });
+      input.addEventListener("paste", () => setTimeout(() => enforceNumericOnly(input), 0));
+    });
+  });
+}
+
+
+
+// ===== Excel-safe input guards (prevents formula injection) =====
+function sanitizeExcelValue(raw) {
+  if (raw === null || raw === undefined) return raw;
+  const s = String(raw);
+  // If first non-space char is one of these, Excel may treat it as a formula
+  // Common list: = + - @
+  if (/^\s*[=+\-@]/.test(s)) return "'" + s;
+  return s;
+}
+
+// Ensure first non-space char starts with A-Z/a-z/0-9 (strip leading special chars).
+function enforceSafeLeadingChars(el) {
+  if (!el || typeof el.value !== "string") return;
+  let v = el.value;
+  v = v.replace(/^\s+/, "");
+  v = v.replace(/^[^A-Za-z0-9]+/, "");
+  v = sanitizeExcelValue(v);
+  el.value = v;
+}
+
+function attachExcelSafeGuards(root = document) {
+  root.querySelectorAll("textarea").forEach((ta) => {
+    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
+  });
+
+  root.querySelectorAll('input[type="text"]').forEach((inp) => {
+    inp.addEventListener("blur", () => {
+      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
     });
   });
 }
@@ -77,61 +122,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-
-// ===== Excel-safe input guards (prevents formula injection) =====
-function sanitizeExcelValue(raw) {
-  if (raw === null || raw === undefined) return raw;
-  const s = String(raw);
-  // If the first non-space char is one of these, Excel may treat it as a formula in exports
-  // Common protection list: = + - @
-  if (/^\s*[=+\-@]/.test(s)) {
-    return "'" + s; // prefix apostrophe to force literal text in Excel
-  }
-  return s;
-}
-
-// For textarea/text fields: ensure first non-space character starts with A-Z / a-z / 0-9.
-// If it starts with special chars, strip them (keeps the rest). Also neutralize Excel formula chars.
-function enforceSafeLeadingChars(el) {
-  if (!el || typeof el.value !== "string") return;
-
-  let v = el.value;
-
-  // Remove leading whitespace for the "first character" rule (internal spaces remain)
-  v = v.replace(/^\s+/, "");
-
-  // Strip leading non-alphanumeric characters
-  v = v.replace(/^[^A-Za-z0-9]+/, "");
-
-  // Neutralize Excel-formula leading chars (if still present)
-  v = sanitizeExcelValue(v);
-
-  el.value = v;
-}
-
-function attachExcelSafeGuards() {
-  // Textareas: apply strict rule
-  document.querySelectorAll("textarea").forEach((ta) => {
-    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
-  });
-
-  // Generic text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
-  document.querySelectorAll('input[type="text"]').forEach((inp) => {
-    // If any field must allow special leading chars, add its name into this set.
-    const skipNames = new Set([]);
-    if (skipNames.has(inp.name)) return;
-
-    inp.addEventListener("blur", () => {
-      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
-    });
-  });
-}
-
-
 document.addEventListener('DOMContentLoaded', () => {
+  attachExcelSafeGuards();
   attachNumericGuards();
   initRemoveButtons();
-  attachExcelSafeGuards();
   const loginSection = document.getElementById('loginSection');
   const formWrapper = document.getElementById('formWrapper');
 
@@ -141,7 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (user) {
       loginSection.style.display = 'none';
-      formWrapper.style.display = 'block';
+      formWrapper.style.display = 'flex';
+      initRemoveButtons();
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
@@ -159,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = result.user;
       if (user) {
         loginSection.style.display = 'none';
-        formWrapper.style.display = 'block';
+        formWrapper.style.display = 'flex';
         showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
@@ -350,44 +345,106 @@ function toggleMarriedFields(selectElem) {
 
 function addEmployment() {
   const container = document.getElementById('employmentSection');
-  const firstBlock = container.querySelector('.employment-block');
-  if (!firstBlock) return;
+  const firstBlock = container?.querySelector('.employment-block');
+  if (!container || !firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, textarea').forEach(input => input.value = '');
+
+  // Clear values
+  clone.querySelectorAll('input, textarea, select').forEach((el) => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
+  });
+
   container.appendChild(clone);
+
+  // Add remove button to newly added block
+  addRemoveButton(clone, container, '.employment-block', 1);
+
+  // Attach guards on the new block
+  attachExcelSafeGuards(clone);
+  attachNumericGuards(clone);
 }
 
 function addEducation() {
   const container = document.getElementById('eduSection');
-  const firstBlock = container.querySelector('.edu-block');
-  if (!firstBlock) return;
+  const firstBlock = container?.querySelector('.edu-block');
+  if (!container || !firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+
+  // Clear values
+  clone.querySelectorAll('input, textarea, select').forEach((el) => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
   });
+
   container.appendChild(clone);
+
+  // Add remove button to newly added block
+  addRemoveButton(clone, container, '.edu-block', 1);
+
+  // Attach guards on the new block
+  attachExcelSafeGuards(clone);
+  attachNumericGuards(clone);
 }
 
 function addFamily() {
   const container = document.getElementById('familySection');
-  const firstBlock = container.querySelector('.family-block');
-  if (!firstBlock) return;
+  const firstBlock = container?.querySelector('.family-block');
+  if (!container || !firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+
+  // Clear values
+  clone.querySelectorAll('input, textarea, select').forEach((el) => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
   });
+
   container.appendChild(clone);
+
+  // Add remove button to newly added block
+  addRemoveButton(clone, container, '.family-block', 1);
+
+  // Attach guards on the new block
+  attachExcelSafeGuards(clone);
+  attachNumericGuards(clone);
 }
 
 function addCertification() {
   const container = document.getElementById('certSection');
-  const firstBlock = container.querySelector('.cert-block');
-  if (!firstBlock) return;
+  const firstBlock = container?.querySelector('.cert-block');
+  if (!container || !firstBlock) return;
+
   const clone = firstBlock.cloneNode(true);
-  clone.querySelectorAll('input').forEach(input => input.value = '');
+
+  // Clear values
+  clone.querySelectorAll('input, textarea, select').forEach((el) => {
+    if (el.tagName === 'SELECT') {
+      el.selectedIndex = 0;
+    } else {
+      el.value = '';
+    }
+  });
+
   container.appendChild(clone);
+
+  // Add remove button to newly added block
+  addRemoveButton(clone, container, '.cert-block', 1);
+
+  // Attach guards on the new block
+  attachExcelSafeGuards(clone);
+  attachNumericGuards(clone);
 }
 function extractGroup(selector, fields) {
   const blocks = document.querySelectorAll(selector);
