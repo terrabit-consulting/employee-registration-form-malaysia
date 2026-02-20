@@ -11,7 +11,59 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+
+// ===== Excel-safe input guards (prevents formula injection) =====
+function sanitizeExcelValue(raw) {
+  if (raw === null || raw === undefined) return raw;
+  const s = String(raw);
+  // If the first non-space char is one of these, Excel may treat it as a formula in exports
+  // Common protection list: = + - @
+  if (/^\s*[=+\-@]/.test(s)) {
+    return "'" + s; // prefix apostrophe to force literal text in Excel
+  }
+  return s;
+}
+
+// For textarea/text fields: ensure first non-space character starts with A-Z / a-z / 0-9.
+// If it starts with special chars, strip them (keeps the rest). Also neutralize Excel formula chars.
+function enforceSafeLeadingChars(el) {
+  if (!el || typeof el.value !== "string") return;
+
+  let v = el.value;
+
+  // Remove leading whitespace for the "first character" rule (internal spaces remain)
+  v = v.replace(/^\s+/, "");
+
+  // Strip leading non-alphanumeric characters
+  v = v.replace(/^[^A-Za-z0-9]+/, "");
+
+  // Neutralize Excel-formula leading chars (if still present)
+  v = sanitizeExcelValue(v);
+
+  el.value = v;
+}
+
+function attachExcelSafeGuards() {
+  // Textareas: apply strict rule
+  document.querySelectorAll("textarea").forEach((ta) => {
+    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
+  });
+
+  // Generic text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
+  document.querySelectorAll('input[type="text"]').forEach((inp) => {
+    // If any field must allow special leading chars, add its name into this set.
+    const skipNames = new Set([]);
+    if (skipNames.has(inp.name)) return;
+
+    inp.addEventListener("blur", () => {
+      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
+    });
+  });
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
+  attachExcelSafeGuards();
   const loginSection = document.getElementById('loginSection');
   const formWrapper = document.getElementById('formWrapper');
 
