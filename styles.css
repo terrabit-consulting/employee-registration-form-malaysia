@@ -412,3 +412,61 @@ button[onclick^="add"]{
   .brand-logo{ height: 50px; }
   .page-title{ font-size: 16px; }
 }
+
+/* ===== Header final alignment (v7) ===== */
+/* Background like main page (soft grey), clean + consistent */
+.page-header{
+  background: var(--bg);
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Align header content width with the form card */
+.brand-row,
+.page-title,
+.page-header .mandatory-note{
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Logo size similar to the centered version, but aligned left in the header row */
+.brand-logo{
+  height: 76px;     /* increased */
+  width: auto;
+  display: block;
+}
+
+/* Keep company name + site aligned right */
+.brand-text{ text-align: right; }
+
+/* Ensure the title is centered (not floating/inline) */
+.page-title{
+  display: block;
+  text-align: center;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: .4px;
+  color: #1f3c88;
+  margin: 8px auto 4px;
+  text-transform: none; /* looks more “form-like” */
+}
+
+/* Tight mandatory note */
+.page-header .mandatory-note{
+  text-align: center;
+  margin: 0 auto;
+  padding-bottom: 2px;
+}
+
+/* Small screens: stack neatly */
+@media (max-width: 520px){
+  .page-header{ padding: 12px 12px 8px; }
+  .brand-row{
+    flex-direction: row;
+    align-items: center;
+  }
+  .brand-logo{ height: 58px; }
+  .brand-text{ text-align: right; }
+  .page-title{ font-size: 18px; }
+}
