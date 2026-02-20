@@ -336,3 +336,79 @@ button[onclick^="add"]{
   .brand-logo{ height: 40px; }
   .title-bar{ border-radius: 10px; }
 }
+
+/* ===== Header refinements (v6) ===== */
+.page-header{
+  background: #ffffff;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-row{
+  max-width: 980px;          /* align with form card */
+  margin: 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.brand-logo{
+  height: 58px;              /* bigger logo */
+  width: auto;
+  display:block;
+}
+
+.brand-text{
+  text-align:right;
+  line-height: 1.1;
+}
+
+.brand-name{
+  font-weight: 900;
+  color: #d35400;
+  font-size: 18px;
+}
+
+.brand-link{
+  font-size: 12.5px;
+  color: #1f3c88;
+  text-decoration: underline;
+}
+
+/* Replace black bar with clean title text */
+.title-bar{ display:none !important; }
+
+.page-title{
+  max-width: 980px;
+  margin: 10px auto 6px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: .6px;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.page-header .mandatory-note{
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Keep form card close to header */
+.form-container{ margin: 12px auto 48px; }
+
+/* Responsive header */
+@media (max-width: 520px){
+  .brand-row{
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-text{ text-align:center; }
+  .brand-logo{ height: 50px; }
+  .page-title{ font-size: 16px; }
+}
