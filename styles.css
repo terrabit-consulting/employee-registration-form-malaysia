@@ -520,3 +520,21 @@ button[onclick^="add"]{
   .brand-logo{ height: 68px; }
   .page-title{ font-size: 17px; }
 }
+
+
+
+/* Remove button for Add More blocks */
+.remove-block-btn{
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  margin-top: 12px;
+  width: 140px;
+  cursor: pointer;
+}
+.remove-block-btn:hover{
+  filter: brightness(.95);
+}
