@@ -6,59 +6,48 @@ body {
 }
 
 
-/* ===== Form Header (Logo + Title) ===== */
+/* ===== Clean Top Header (Logo + Title) ===== */
 .form-header {
   text-align: center;
-  padding: 26px 18px;
-  background: linear-gradient(to right, #f8fbff, #ffffff);
+  padding: 34px 18px 18px;
+  background: #ffffff; /* matches logo background */
   border-bottom: 1px solid #eaeaea;
 }
 
 .header-logo {
-  max-width: 190px;
+  max-width: 220px;
+  width: 100%;
   height: auto;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .form-header h1 {
+  font-size: 32px;
   margin: 0;
-  font-size: 28px;
   color: #1f3c88;
-}
-
-.mandatory-note {
-  margin: 10px 0 0;
-  font-size: 14px;
-  color: #555;
-}
-
-.mandatory-note .asterisk {
-  color: #d32f2f;
   font-weight: 700;
 }
 
-/* Keep header corners aligned with wrapper rounding */
-.form-wrapper .form-header {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+.mandatory-note {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #444;
 }
 
-
-.form-wrapper {
-  display: block;
-  max-width: 1100px;
-  margin: 30px auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+.asterisk {
+  color: #d32f2f;
+  font-weight: 800;
 }
 
 .form-container {
-  width: 100%;
-  flex: 3;
+  max-width: 1100px;
+  margin: 0 auto 40px;
   padding: 30px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.06);
 }
+
 
 label {
   display: block;
@@ -168,7 +157,8 @@ button:hover {
   border: 2px solid red !important;
 }
 
-@media (max-width: 768px) {.button-row {
+@media (max-width: 768px) {
+  .button-row {
     text-align: center;
   }
 
@@ -176,5 +166,44 @@ button:hover {
     margin-left: 0;
     margin-top: 10px;
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-header {
+    padding: 26px 14px 14px;
+  }
+
+  .header-logo {
+    max-width: 170px;
+  }
+
+  .form-header h1 {
+    font-size: 24px;
+  }
+
+  .mandatory-note {
+    font-size: 14px;
+  }
+
+  .form-container {
+    margin: 0 12px 28px;
+    padding: 20px;
+  }
+
+  .button-row {
+    text-align: center;
+  }
+
+  button {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .form-header h1 {
+    font-size: 20px;
   }
 }
