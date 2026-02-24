@@ -459,17 +459,17 @@
         <input type="text" name="race" />
         <label>Religion</label>
         <input type="text" name="religion" />
-	 <label>Home Country Address *</label>
+	 <label>Country of Citizenship Address *</label>
          <textarea name="homeCountryAddress" rows="3" required></textarea>
-         <label>No. of Years of Stay (Home) *</label>
+         <label>Number of Years of Stay (Home) *</label>
          <input type="number" name="yearsOfStayHome" required />
           <label>Complete Address in Malaysia </label>
           <textarea name="completeAddressMalaysia" id="completeAddressMalaysia" rows="3"></textarea>
-          <label>No. of Years of Stay (Malaysia)</label>
+          <label>Number of Years of Stay (Malaysia)</label>
           <input type="number" name="yearsOfStayMalaysia" id="yearsOfStayMalaysia" />
-          <label>Duration of Stay From</label>
+          <label>Start date of residence in Malaysia</label>
          <input type="date" name="durationStayFrom" />
-        <label>Duration of Stay To</label>
+        <label>End date of residence in Malaysia</label>
         <input type="date" name="durationStayTo" />
           <label>IC Number</label>
           <input type="text" name="icNumber" id="icNumber" />
@@ -491,6 +491,8 @@
         <input type="text" name="visaCollectionCentre" />
         <label>Mother’s Maiden Name</label>
         <input type="text" name="mothersMaidenName" />
+		<label>Major Skill Set</label>
+        <input type="text" name="majorSkillSet" required />
           <div class="button-row">
             <button type="button" onclick="nextSection()">Next</button>
           </div>
@@ -507,9 +509,9 @@
         <input type="text" name="telHome" />
         <label>WhatsApp No</label>
         <input type="text" name="whatsappNo" />
-        <label>LinkedIn ID</label>
+        <label>LinkedIn URL</label>
         <input type="text" name="linkedInId" />
-        <label>Facebook</label>
+        <label>Facebook URL</label>
         <input type="text" name="facebook" />
         <label>Job Location</label>
         <select name="joblocation">
@@ -561,9 +563,7 @@
         <input type="text" name="epfRate" />
         <label>SOCSO Number</label>
         <input type="text" name="socsoNumber" />
-        <label>Major Skill Set</label>
-        <input type="text" name="majorSkillSet" required />
-          <div class="button-row">
+        <div class="button-row">
             <button type="button" onclick="prevSection()">Previous</button>
             <button type="button" onclick="nextSection()">Next</button>
           </div>
@@ -592,7 +592,7 @@
             <input type="text" name="jobTitle[]" required />
 
             <label>Office Address</label>
-            <textarea name="officeAddress[]" rows="2"></textarea>
+            <textarea name="officeAddress[]" rows="2" required></textarea>
 
             <label>Reference Name</label>
             <input type="text" name="refName[]" />
@@ -631,23 +631,22 @@
             <label>Institute Name *</label>
             <input type="text" name="eduInstitute[]" required />
 
-            <label>Year Graduated *</label>
-            <input type="number" name="eduYear[]" required />
-
             <label>Graduated (Yes / No) *</label>
             <select name="eduGraduated[]" required>
               <option value="">-- Select --</option>
               <option>Yes</option>
               <option>No</option>
             </select>
-
-            <label>Degree *</label>
+			<label>Year Graduated *</label>
+            <input type="number" name="eduYear[]" required />
+			  
+            <label>Educational Qualification *</label>
             <input type="text" name="eduDegree[]" required />
 
             <label>GPA Score / %</label>
             <input type="text" name="eduGPA[]" />
 
-            <label>Stream *</label>
+            <label>Field of Study / Major *</label>
             <input type="text" name="eduStream[]" required />
           </div>
         </div>
@@ -690,7 +689,7 @@
               <option>Other</option>
             </select>
 
-            <label>Passport Number *</label>
+            <label>IC / Passport Number *</label>
             <input type="text" name="familyPassport[]" required />
 
             <label>Date Of Birth *</label>
