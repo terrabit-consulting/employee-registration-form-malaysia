@@ -511,29 +511,35 @@
           <label>Mobile Country Code *</label>
       <input type="text" name="mobileCountryCode" required placeholder="e.g. +60" />
           <label>Mobile Number *</label>
-      <input type="tel" name="mobile2" required pattern="[0-9]{7,15}" title="Please enter a valid mobile number (7–15 digits)" />
-         <label>Tel (Home)</label>
-        <input type="text" name="telHome" />
-        <label>WhatsApp Country Code</label>
-        <input type="text" name="whatsappCountryCode" placeholder="e.g. +60" />
-        <label>WhatsApp Number</label>
-        <input type="text" name="whatsappNo" />
-        <label>LinkedIn URL</label>
-        <input type="text" name="linkedInId" />
-        <label>Facebook URL</label>
-        <input type="text" name="facebook" />
-        <label>Job Location</label>
-        <select name="joblocation">
-          <option value="">-- Select --</option>
-          <option>Johor Bahru</option>
-          <option>Kuala Lumpur</option>
-	  <option>Penang</option>
-	  <option>Selangor</option>
-        </select>
-          <div class="button-row">
-            <button type="button" onclick="prevSection()">Previous</button>
-            <button type="button" onclick="nextSection()">Next</button>
-          </div>
+<div class="phone-group">
+<select name="mobileCountryCode" required>
+
+<option value="">Code</option>
+<option value="+60">Malaysia (+60)</option>
+<option value="+91">India (+91)</option>
+<option value="+65">Singapore (+65)</option>
+<option value="+1">USA (+1)</option>
+<option value="+44">UK (+44)</option>
+<option value="+61">Australia (+61)</option>
+<option value="+971">UAE (+971)</option>
+<option value="+81">Japan (+81)</option>
+<option value="+86">China (+86)</option>
+<option value="+62">Indonesia (+62)</option>
+<option value="+66">Thailand (+66)</option>
+<option value="+63">Philippines (+63)</option>
+<option value="+94">Sri Lanka (+94)</option>
+<option value="+880">Bangladesh (+880)</option>
+<option value="+92">Pakistan (+92)</option>
+<option value="+49">Germany (+49)</option>
+<option value="+33">France (+33)</option>
+<option value="+39">Italy (+39)</option>
+<option value="+34">Spain (+34)</option>
+<option value="+7">Russia (+7)</option>
+
+</select>
+<input type="tel" name="mobile2" required pattern="[0-9]{7,15}" placeholder="Mobile Number"/>
+</div>
+
         </div>
 
         <!-- Section 3: Bank Info -->
