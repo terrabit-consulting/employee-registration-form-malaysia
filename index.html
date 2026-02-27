@@ -1621,10 +1621,14 @@
             <input type="text" name="eduStream[]" required />
           </div>
         </div>
+        <button type="button" onclick="addEducation()">+ Add More</button>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
 
-
-
-     <!-- SECTION 6: Certifications -->
+      <!-- SECTION 6: Certifications -->
       <div class="form-section">
         <h2>Certifications</h2>
         <div id="certSection">
@@ -1642,17 +1646,14 @@
             <input type="text" name="certNumber[]"  />
           </div>
         </div>
-        
-
-
-        <button type="button" onclick="addEducation()">+ Add More</button>
+        <button type="button" onclick="addCertification()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
           <button type="button" onclick="nextSection()">Next</button>
         </div>
       </div>
 
-        <!-- SECTION 6: Family Members -->
+<!-- SECTION 6: Family Members -->
         <div class="form-section">
         <h2>Family Members</h2>
         <div id="familySection">
