@@ -1,631 +1,847 @@
-// ===== Add/Remove block support for Add More sections =====
-function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
-  if (blockEl.querySelector(".remove-block-btn")) return;
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "remove-block-btn";
-  btn.textContent = "Remove";
-
-  btn.addEventListener("click", () => {
-    const blocks = containerEl.querySelectorAll(blockSelector);
-    if (blocks.length <= minBlocks) {
-      alert("At least one entry is required.");
-      return;
-    }
-    blockEl.remove();
-  });
-
-  blockEl.appendChild(btn);
-}
-
-function initRemoveButtons() {
-  // ✅ UPDATED: container IDs matched with current HTML
-  const setups = [
-    { container: "employmentSection", block: ".employment-block" },
-    { container: "eduSection",        block: ".edu-block" },
-    { container: "familySection",     block: ".family-block" },
-    { container: "certSection",       block: ".cert-block" }
-  ];
-
-  setups.forEach(s => {
-    const c = document.getElementById(s.container);
-    if (!c) return;
-
-    const blocks = c.querySelectorAll(s.block);
-    blocks.forEach((b, i) => {
-      // One block is must: do not add remove button to the first block
-      if (i === 0) return;
-      addRemoveButton(b, c, s.block, 1);
-    });
-  });
-}
-
-
-
-// ===== Numeric-only guards for phone & bank fields =====
-function enforceNumericOnly(el) {
-  el.value = el.value.replace(/[^0-9]/g, "");
-}
-
-function attachNumericGuards() {
-  const selectors = [
-    'input[name="mobile2"]',
-    'input[name="mobileCountryCode"]',
-    'input[name="telHome"]',
-    'input[name="whatsappNo"]',
-    'input[name="whatsappCountryCode"]',
-    'input[name="emergencyPhone"]',
-    'input[name="emergencyPhoneCountryCode"]',
-    'input[name="contactNumber[]"]',
-    'input[name="contactCountryCode[]"]',
-    'input[name="refPhone[]"]',
-    'input[name="refPhoneCountryCode[]"]',
-    'input[name="bankAccount"]'
-  ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(input => {
-      input.addEventListener("input", () => enforceNumericOnly(input));
-      input.addEventListener("paste", () => {
-        setTimeout(() => enforceNumericOnly(input), 0);
-      });
-    });
-  });
-}
-
-
-// 🔐 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
-  authDomain: "employment-form-login.firebaseapp.com",
-  projectId: "employment-form-login",
-  storageBucket: "employment-form-login.firebasestorage.app",
-  messagingSenderId: "784854094144",
-  appId: "1:784854094144:web:5ec3f9a5120717f806eaa5",
-  measurementId: "G-MYBD4VRD2M"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-
-
-// ===== Excel-safe input guards (prevents formula injection) =====
-function sanitizeExcelValue(raw) {
-  if (raw === null || raw === undefined) return raw;
-  const s = String(raw);
-  // If the first non-space char is one of these, Excel may treat it as a formula in exports
-  // Common protection list: = + - @
-  if (/^\s*[=+\-@]/.test(s)) {
-    return "'" + s; // prefix apostrophe to force literal text in Excel
-  }
-  return s;
-}
-
-// For textarea/text fields: ensure first non-space character starts with A-Z / a-z / 0-9.
-// If it starts with special chars, strip them (keeps the rest). Also neutralize Excel formula chars.
-function enforceSafeLeadingChars(el) {
-  if (!el || typeof el.value !== "string") return;
-
-  let v = el.value;
-
-  // Remove leading whitespace for the "first character" rule (internal spaces remain)
-  v = v.replace(/^\s+/, "");
-
-  // Strip leading non-alphanumeric characters
-  v = v.replace(/^[^A-Za-z0-9]+/, "");
-
-  // Neutralize Excel-formula leading chars (if still present)
-  v = sanitizeExcelValue(v);
-
-  el.value = v;
-}
-
-function attachExcelSafeGuards() {
-  // Textareas: apply strict rule
-  document.querySelectorAll("textarea").forEach((ta) => {
-    ta.addEventListener("blur", () => enforceSafeLeadingChars(ta));
-  });
-
-  // Generic text inputs: apply (skip special types like email/tel/date/number by targeting type="text")
-  document.querySelectorAll('input[type="text"]').forEach((inp) => {
-    // If any field must allow special leading chars, add its name into this set.
-    const skipNames = new Set([]);
-    if (skipNames.has(inp.name)) return;
-
-    inp.addEventListener("blur", () => {
-      if (inp.value && inp.value.trim().length > 0) enforceSafeLeadingChars(inp);
-    });
-  });
-}
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  sections = document.querySelectorAll('.form-section');
-  attachNumericGuards();
-  initRemoveButtons();
-  attachExcelSafeGuards();
-  const loginSection = document.getElementById('loginSection');
-  const formWrapper = document.getElementById('formWrapper');
-
-  auth.onAuthStateChanged(user => {
-    const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'none';
-
-    if (user) {
-      loginSection.style.display = 'none';
-      formWrapper.style.display = 'block';
-      showSection(currentSection);
-      toggleMalaysiaFields();
-      toggleCitizenshipFields();
-      localStorage.setItem("userEmail", user.email);
-    } else {
-      loginSection.style.display = 'block';
-      formWrapper.style.display = 'none';
-      localStorage.removeItem("userEmail");
-    }
-  });
-
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(result => {
-      const user = result.user;
-      if (user) {
-        loginSection.style.display = 'none';
-        formWrapper.style.display = 'block';
-        showSection(currentSection);
-        toggleMalaysiaFields();
-        toggleCitizenshipFields();
-        localStorage.setItem("userEmail", user.email);
-      }
-    }).catch(error => {
-      alert("Login failed: " + error.message);
-    });
-  });
-
-  // These lines from your bottom block:
-  showSection(currentSection);
-  toggleMalaysiaFields();
-  toggleCitizenshipFields();
-});
-
-// script.js
-
-let currentSection = 0;
-let sections = [];
-function showSection(index) {
-  // Safety guard
-  if (!sections || sections.length === 0) return;
-
-  currentSection = Math.min(Math.max(index, 0), sections.length - 1);
-
-  sections.forEach((section, i) => {
-    const isActive = i === currentSection;
-
-    // Keep class-based styling
-    section.classList.toggle('active', isActive);
-
-    // Extra safety: force display in case CSS is overridden
-    section.style.display = isActive ? 'block' : 'none';
-  });
-
-  updateProgressBar(currentSection);
-}
-
-function updateProgressBar(index) {
-  const progress = document.getElementById('progress');
-  const percent = ((index + 1) / sections.length) * 100;
-  progress.style.width = percent + '%';
-}
-
-function nextSection() {
-  if (!validateSection(currentSection)) return;
-  if (currentSection < sections.length - 1) {
-    currentSection++;
-    showSection(currentSection);
-  }
-}
-
-function prevSection() {
-  if (currentSection > 0) {
-    currentSection--;
-    showSection(currentSection);
-  }
-}
-
-function validateSection(index) {
-  const section = sections[index];
-  const requiredFields = section.querySelectorAll('[required]');
-  const optionalEmails = section.querySelectorAll('input[type="email"]:not([required])');
-  let isValid = true;
-
-  // First: validate all required fields
-  for (const field of requiredFields) {
-    if (field.offsetParent === null) continue;
-
-    if (!field.checkValidity()) {
-      field.classList.add('error-highlight');
-      alert(field.validationMessage);
-      field.focus();
-      isValid = false;
-      return false;
-    } else {
-      field.classList.remove('error-highlight');
-    }
-  }
-
-  // Second: validate optional email fields (if filled)
-  for (const field of optionalEmails) {
-    if (field.offsetParent === null) continue;
-    const value = field.value.trim();
-
-    if (value !== '' && !field.checkValidity()) {
-      field.classList.add('error-highlight');
-      alert('Please enter a valid email address.');
-      field.focus();
-      isValid = false;
-      return false;
-    } else {
-      field.classList.remove('error-highlight');
-    }
-  }
-
-  return isValid;
-}
-
-
-function toggleOtherField(selectElement, targetDivId) {
-  const div = document.getElementById(targetDivId);
-  if (!div) return;
-  const input = div.querySelector('input');
-
-  if (selectElement.value === 'Other') {
-    div.style.display = 'block';
-    if (input) input.required = true;
-  } else {
-    div.style.display = 'none';
-    if (input) {
-      input.required = false;
-      input.value = '';
-    }
-  }
-}
-
-function toggleMalaysiaFields() {
-  const isMalaysia = document.getElementById('currentlyInMalaysia')?.value === 'Yes';
-
-  const malaysiaBlock = document.getElementById('malaysiaStayFields');
-  const addr = document.getElementById('completeAddressMalaysia');
-  const years = document.getElementById('yearsOfStayMalaysia');
-  const from = document.querySelector('[name="durationStayFrom"]');
-  const to = document.querySelector('[name="durationStayTo"]');
-
-  if (malaysiaBlock) malaysiaBlock.style.display = isMalaysia ? 'block' : 'none';
-
-  // Required only when "Currently in Malaysia" = Yes
-  if (addr) addr.required = isMalaysia;
-  if (years) years.required = isMalaysia;
-
-  // Start/End dates are optional (as per your requirement)
-  if (from) from.required = false;
-  if (to) to.required = false;
-
-  if (!isMalaysia) {
-    if (addr) addr.value = '';
-    if (years) years.value = '';
-    if (from) from.value = '';
-    if (to) to.value = '';
-  }
-}
-
-function toggleCitizenshipFields() {
-  const citizenship = document.getElementById('citizenship')?.value || '';
-  const citizenshipOtherDiv = document.getElementById('citizenshipOtherDiv');
-
-  const homeCountryFields = document.getElementById('homeCountryFields');
-
-  const icFields = document.getElementById('icFields');
-  const passportFields = document.getElementById('passportFields');
-
-  // IC fields
-  const icNumber = document.getElementById('icNumber');
-  const icPlace = document.querySelector('[name="icPlaceOfIssue"]');
-  const icIssue = document.querySelector('[name="icDateOfIssue"]');
-  const icExpiry = document.querySelector('[name="icDateOfExpiry"]');
-
-  // Passport fields
-  const primaryPassport = document.getElementById('primaryPassport');
-  const passportPlace = document.querySelector('[name="passportPlaceOfIssue"]');
-  const passportIssue = document.querySelector('[name="passportDateOfIssue"]');
-  const passportExpiry = document.querySelector('[name="passportDateOfExpiry"]');
-
-  // Home country address + years
-  const homeAddr = document.querySelector('[name="homeCountryAddress"]');
-  const yearsHome = document.querySelector('[name="yearsOfStayHome"]');
-
-  // Handle "Other" citizenship extra text field
-  if (citizenship === 'Other') {
-    if (citizenshipOtherDiv) citizenshipOtherDiv.style.display = 'block';
-    const input = citizenshipOtherDiv?.querySelector('input');
-    if (input) input.required = true;
-  } else {
-    if (citizenshipOtherDiv) citizenshipOtherDiv.style.display = 'none';
-    const input = citizenshipOtherDiv?.querySelector('input');
-    if (input) {
-      input.required = false;
-      input.value = '';
-    }
-  }
-
-  const isMalaysianCitizen = citizenship === 'Malaysia';
-  const hasCitizenship = citizenship !== '' && citizenship !== 'Other'; // includes Malaysia + other countries
-
-  // Show/Hide IC vs Passport fields
-  if (icFields) icFields.style.display = isMalaysianCitizen ? 'block' : 'none';
-  if (passportFields) passportFields.style.display = isMalaysianCitizen ? 'none' : (citizenship ? 'block' : 'none');
-
-  // Required rules:
-  // - If citizenship = Malaysia => IC fields required, Passport not required
-  // - If citizenship != Malaysia (including Other or any country) => Passport required, IC not required
-  const requireIC = isMalaysianCitizen;
-  const requirePassport = citizenship !== '' && !isMalaysianCitizen;
-
-  if (icNumber) icNumber.required = requireIC;
-  if (icPlace) icPlace.required = requireIC;
-  if (icIssue) icIssue.required = requireIC;
-  if (icExpiry) icExpiry.required = requireIC;
-
-  if (primaryPassport) primaryPassport.required = requirePassport;
-  if (passportPlace) passportPlace.required = requirePassport;
-  if (passportIssue) passportIssue.required = requirePassport;
-  if (passportExpiry) passportExpiry.required = requirePassport;
-
-  // Clear hidden fields to avoid accidental submission
-  if (!requireIC) {
-    [icNumber, icPlace, icIssue, icExpiry].forEach(el => { if (el) el.value = ''; });
-  }
-  if (!requirePassport) {
-    [primaryPassport, passportPlace, passportIssue, passportExpiry].forEach(el => { if (el) el.value = ''; });
-  }
-
-  // Home country fields: hide if Malaysian citizen, otherwise show + required
-  if (homeCountryFields) homeCountryFields.style.display = isMalaysianCitizen ? 'none' : (citizenship ? 'block' : 'none');
-  const requireHome = citizenship !== '' && !isMalaysianCitizen;
-
-  if (homeAddr) homeAddr.required = requireHome;
-  if (yearsHome) yearsHome.required = requireHome;
-
-  if (!requireHome) {
-    if (homeAddr) homeAddr.value = '';
-    if (yearsHome) yearsHome.value = '';
-  }
-}
-
-function toggleMarriedFields(selectElem) {
-  const marriedDiv = document.getElementById('marriedFields');
-  const marriageDateField = document.getElementById('marriageDate');
-  const kidsCountField = document.getElementById('numberOfKids');
-
-  if (selectElem.value === 'Married') {
-    marriedDiv.style.display = 'block';
-    marriageDateField.required = true;
-    kidsCountField.required = true;
-  } else {
-    marriedDiv.style.display = 'none';
-    marriageDateField.required = false;
-    kidsCountField.required = false;
-    marriageDateField.value = '';
-    kidsCountField.value = '';
-  }
-}
-
-
-function toggleGraduationYear(selectEl) {
-  // Works for multiple Education blocks
-  const block = selectEl?.closest('.edu-block');
-  if (!block) return;
-
-  const wrap = block.querySelector('.grad-year');
-  const yearInput = block.querySelector('input[name="eduYear[]"]');
-
-  const show = (selectEl.value || '').toLowerCase() === 'yes';
-
-  if (wrap) wrap.style.display = show ? 'block' : 'none';
-  if (yearInput) yearInput.required = show;
-
-  if (!show && yearInput) yearInput.value = '';
-}
-
-function addEmployment() {
-  const container = document.getElementById('employmentSection');
-  const firstBlock = container.querySelector('.employment-block');
-  if (!firstBlock) return;
-
-  const clone = firstBlock.cloneNode(true);
-
-  // Clear values
-  clone.querySelectorAll('input, textarea').forEach(input => input.value = '');
-
-  // Safety: remove existing remove button if any got cloned
-  clone.querySelectorAll('.remove-block-btn').forEach(btn => btn.remove());
-
-  container.appendChild(clone);
-
-  // Add remove option to newly added block (min 1 required)
-  addRemoveButton(clone, container, ".employment-block", 1);
-}
-
-function addEducation() {
-  const container = document.getElementById('eduSection');
-  const firstBlock = container.querySelector('.edu-block');
-  if (!firstBlock) return;
-
-  const clone = firstBlock.cloneNode(true);
-
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
-  });
-
-  clone.querySelectorAll('.remove-block-btn').forEach(btn => btn.remove());
-
-  container.appendChild(clone);
-
-  addRemoveButton(clone, container, ".edu-block", 1);
-}
-
-function addFamily() {
-  const container = document.getElementById('familySection');
-  const firstBlock = container.querySelector('.family-block');
-  if (!firstBlock) return;
-
-  const clone = firstBlock.cloneNode(true);
-
-  clone.querySelectorAll('input, select').forEach(el => {
-    el.value = '';
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
-  });
-
-  clone.querySelectorAll('.remove-block-btn').forEach(btn => btn.remove());
-
-  container.appendChild(clone);
-
-  addRemoveButton(clone, container, ".family-block", 1);
-}
-
-function addCertification() {
-  const container = document.getElementById('certSection');
-  const firstBlock = container.querySelector('.cert-block');
-  if (!firstBlock) return;
-
-  const clone = firstBlock.cloneNode(true);
-
-  clone.querySelectorAll('input').forEach(input => input.value = '');
-
-  clone.querySelectorAll('.remove-block-btn').forEach(btn => btn.remove());
-
-  container.appendChild(clone);
-
-  addRemoveButton(clone, container, ".cert-block", 1);
-}
-function extractGroup(selector, fields) {
-  const blocks = document.querySelectorAll(selector);
-  const data = [];
-
-  blocks.forEach(block => {
-    const group = {};
-    fields.forEach(field => {
-      const input = block.querySelector(`[name="${field}[]"]`);
-      group[field] = input ? input.value : "";
-    });
-    data.push(group);
-  });
-
-  return data;
-}
-
-document.getElementById("multiStepForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  toggleMalaysiaFields();
-  toggleCitizenshipFields();
-
-  for (let i = 0; i < sections.length; i++) {
-    if (!validateSection(i)) {
-      currentSection = i;
-      showSection(currentSection);
-      return;
-    }
-  }
-
-  const formData = {
-    personalData: {
-      positionApplied: document.querySelector('[name="positionApplied"]').value,
-      positionOther1: document.querySelector('[name="positionOther1"]')?.value || "",
-      joiningDate: document.querySelector('[name="joiningDate"]').value,
-      fullName: document.querySelector('[name="fullName"]').value,
-      dob: document.querySelector('[name="dob"]').value,
-      age: document.querySelector('[name="age"]').value,
-      stateOfBirth: document.querySelector('[name="stateOfBirth"]').value,
-      maritalStatus: document.querySelector('[name="maritalStatus"]').value,
-      marriageDate: document.querySelector('[name="marriageDate"]')?.value || "",
-      numberOfKids: document.querySelector('[name="numberOfKids"]')?.value || "",
-      gender: document.querySelector('[name="gender"]').value,
-      currentlyInMalaysia: document.querySelector('[name="currentlyInMalaysia"]').value,
-      citizenship: document.querySelector('[name="citizenship"]').value,
-      citizenshipOther: document.querySelector('[name="citizenshipOther"]')?.value || "",
-      race: document.querySelector('[name="race"]').value,
-      religion: document.querySelector('[name="religion"]').value,
-      homeCountryAddress: document.querySelector('[name="homeCountryAddress"]').value,
-      yearsOfStayHome: document.querySelector('[name="yearsOfStayHome"]').value,
-      completeAddressMalaysia: document.querySelector('[name="completeAddressMalaysia"]').value,
-      yearsOfStayMalaysia: document.querySelector('[name="yearsOfStayMalaysia"]').value,
-      durationStayFrom: document.querySelector('[name="durationStayFrom"]').value,
-      durationStayTo: document.querySelector('[name="durationStayTo"]').value,
-      icNumber: document.querySelector('[name="icNumber"]').value,
-      icPlaceOfIssue: document.querySelector('[name="icPlaceOfIssue"]').value,
-      icDateOfIssue: document.querySelector('[name="icDateOfIssue"]').value,
-      icDateOfExpiry: document.querySelector('[name="icDateOfExpiry"]').value,
-      primaryPassport: document.querySelector('[name="primaryPassport"]').value,
-      passportPlaceOfIssue: document.querySelector('[name="passportPlaceOfIssue"]').value,
-      passportDateOfIssue: document.querySelector('[name="passportDateOfIssue"]').value,
-      passportDateOfExpiry: document.querySelector('[name="passportDateOfExpiry"]').value,
-      visaCollectionCentre: document.querySelector('[name="visaCollectionCentre"]').value,
-      mothersMaidenName: document.querySelector('[name="mothersMaidenName"]').value,
-    },
-    contactInfo: {
-      email: document.querySelector('[name="email2"]').value,
-      mobileCountryCode: document.querySelector('[name="mobileCountryCode"]').value,
-      mobile: document.querySelector('[name="mobile2"]').value,
-      telHome: document.querySelector('[name="telHome"]').value,
-      whatsappCountryCode: document.querySelector('[name="whatsappCountryCode"]').value,
-      whatsappNo: document.querySelector('[name="whatsappNo"]').value,
-      linkedInId: document.querySelector('[name="linkedInId"]').value,
-      facebook: document.querySelector('[name="facebook"]').value,
-      jobLocation: document.querySelector('[name="joblocation"]').value
-    },
-    bankInfo: {
-      bank: document.querySelector('[name="bank"]').value,
-      bankOther: document.querySelector('[name="bankOther"]')?.value || "",
-      bankAccount: document.querySelector('[name="bankAccount"]').value,
-      accountType: document.querySelector('[name="accountType"]').value,
-      taxNumber: document.querySelector('[name="taxNumber"]').value,
-      epfNumber: document.querySelector('[name="epfNumber"]').value,
-      epfRate: document.querySelector('[name="epfRate"]').value,
-      socsoNumber: document.querySelector('[name="socsoNumber"]').value,
-      majorSkillSet: document.querySelector('[name="majorSkillSet"]').value,
-    },
-    employment: extractGroup(".employment-block", ["company", "from", "to", "contactCountryCode", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhoneCountryCode", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
-    education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
-    certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
-    family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContact: {
-      name: document.querySelector('[name="emergencyName"]').value,
-      relation: document.querySelector('[name="emergencyRelation"]').value,
-      phoneCountryCode: document.querySelector('[name="emergencyPhoneCountryCode"]').value,
-      phone: document.querySelector('[name="emergencyPhone"]').value,
-      address: document.querySelector('[name="emergencyAddress"]').value,
-      location: document.querySelector('[name="emergencyLocation"]').value,
-    }};
-// ✅ Add this line here:
-  formData.authenticatedEmail = localStorage.getItem("userEmail");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employment Registration Form</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
   
-  const flowUrl = "https://default801bb2d2c6584e6787728a97c96f3e.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7003fbb3a2f8436789a6895468c71bf1/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-801bb2d2-c658-4e67-8772-8a97c96f3ee2&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=gSF_hOIn6LCfJXa9tfr5z8WrhbH05fq4nay_GBH7LBc"; // Replace with actual Power Automate endpoint
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="page-header-inner">
+<div class="brand-row">
+      <img src="logo.png" alt="Terrabit Consulting Logo" class="brand-logo" />
+      <div class="brand-text">
+        <div class="brand-name">Terrabit Consulting Sdn Bhd</div>
+        <a class="brand-link" href="https://www.terrabit-consulting.com" target="_blank" rel="noopener">www.terrabit-consulting.com</a>
+      </div>
+    </div>
 
-  fetch(flowUrl, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(formData)
-})
-  .then(res => {
-    if (res.ok) {
-      // ✅ Redirect after successful submission
-      window.location.href = "thank-you.html"; // Change this if hosted differently
-    } else {
-      alert("❌ Submission failed. Please try again.");
-    }
-  })
+    <div class="page-title">Employment Registration Form</div>
+    <div class="mandatory-note">Fields marked with <span class="asterisk">*</span> are mandatory.</div>
+    </div>
+</header>
 
-    .catch(err => {
-      console.error("⚠️ Submission error:", err);
-      alert("⚠️ Submission error: " + err.message);
-    });
-});
+<div id="loading">Checking authentication status...</div>
+  <div id="loginSection">
+    <h2>Sign in to access the application form</h2>
+    <button id="loginBtn">Sign in with Google</button>
+  </div>
+  <div id="formWrapper" style="display: none;">
+<div class="form-container">
+      <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+      </div>
+      <form id="multiStepForm">
+        
+        <div class="form-section">
+          <h2>Personal Particulars</h2>
+          <label>Position Applied For *</label>
+          <select name="positionApplied" onchange="toggleOtherField(this, 'positionOtherDiv1')" required>
+            <option value="">-- Select Position --</option>
+         <option>Advisor Demand Planning</option>
+	<option>Advisor IT Service Operations</option>
+	<option>Advisor Project/Programme Management</option>
+	<option>Advisor, IT Infrastructure- DBA</option>
+	<option>Agile Project Manager</option>
+	<option>Alvm Specialist</option>
+	<option>Analyst Financial Analysis</option>
+	<option>Analyst IT Application Management</option>
+	<option>Analyst IT Technical Analysis</option>
+	<option>Analyst Sales Operations</option>
+	<option>Analyst, IT Technical Analysis</option>
+	<option>Application Security Analyst</option>
+	<option>Application Support Analyst</option>
+	<option>Application Support Specialist</option>
+	<option>Associate Director - Delivery</option>
+	<option>Associate Director - Strategic Accounts</option>
+	<option>Automation Test Analyst</option>
+	<option>Automation Tester</option>
+	<option>Backup Solution Architect</option>
+	<option>Business Analyst</option>
+	<option>Business Consulting Manager</option>
+	<option>Business Solution Manager</option>
+	<option>Campaign Strategist</option>
+	<option>Cisco ACI Engineer</option>
+	<option>Client Relation Manager</option>
+	<option>Cloud Engineer</option>
+	<option>Content Analyst</option>
+	<option>Content Review Analyst</option>
+	<option>Content Review Associate</option>
+	<option>Copyright Operations Associate</option>
+	<option>Customer Service L1</option>
+	<option>Cyber Security Analyst</option>
+	<option>Cyber Security Specialist</option>
+	<option>Data Modeler</option>
+	<option>Database Engineer</option>
+	<option>Datastage Developer</option>
+	<option>Delivery Lead</option>
+	<option>Developer</option>
+	<option>Development Analyst</option>
+	<option>Development Analyst - COBOL</option>
+	<option>Development Lead</option>
+	<option>Development Lead (HOGAN)</option>
+	<option>Development Manager</option>
+	<option>Director</option>
+	<option>Document Writer</option>
+	<option>Dotnet Developer</option>
+	<option>Emerging Technology Solution Manager</option>
+	<option>Enterprise Solution Lead-APAC</option>
+	<option>ETL Power Centre Developer</option>
+	<option>Field Engineer</option>
+	<option>Finance Controller</option>
+	<option>Finance Executive</option>
+	<option>Finance Executive Secretary</option>
+	<option>Finance Manager</option>
+	<option>Financial Analyst</option>
+	<option>Frontend Developer</option>
+	<option>Head-Presales APAC</option>
+	<option>HR Executive</option>
+	<option>HR Manager</option>
+	<option>IAM Specialist</option>
+	<option>Informatica Developer</option>
+	<option>Information Security Analyst</option>
+	<option>Information Security Manager</option>
+	<option>Information Security Specialist</option>
+	<option>Infra Tech Support Practitioner</option>
+	<option>Infrastructure Specialist</option>
+	<option>IT Application Management Specialist</option>
+	<option>IT Resilience Specialist</option>
+	<option>Java Developer</option>
+	<option>Jr. Consultant</option>
+	<option>Junior Project Manager</option>
+	<option>Junior Recruiter</option>
+	<option>Lead Business Analyst</option>
+	<option>Lead Developer</option>
+	<option>Lead Engineer- Quality Assurance</option>
+	<option>Lead Performance Tester</option>
+	<option>Lead Project Manager</option>
+	<option>Lead Tech Support</option>
+	<option>Linux Build Engineer</option>
+	<option>Magento Architect</option>
+	<option>Mainframe Developer</option>
+	<option>Manager - HR And L&D</option>
+	<option>Manager- Corporate Finance</option>
+	<option>Material Planning Analyst</option>
+	<option>Merchant Executive</option>
+	<option>Network Engineer</option>
+	<option>Network Engineer Specialist</option>
+	<option>Network Specialist</option>
+	<option>Operational Executive</option>
+	<option>Oracle BI Consultant</option>
+	<option>Other</option>
+	<option>PMO</option>
+	<option>PMO Analyst</option>
+	<option>Principal Software Engineer- IT</option>
+	<option>Principal Software Engineer- IT Malaysia</option>
+	<option>Product Lead</option>
+	<option>Product Operations Engineer 1</option>
+	<option>Product Operations Engineer 1 - Malaysia</option>
+	<option>Program Manager</option>
+	<option>Project Head- Incident Management</option>
+	<option>Project Manager</option>
+	<option>Quality Analyst</option>
+	<option>Recruitment & Employee Relation Manager</option>
+	<option>Recruitment Consultant</option>
+	<option>Regional Account Director</option>
+	<option>RPA Developer</option>
+	<option>SACM Specialist</option>
+	<option>Sales Manager</option>
+	<option>Salesforce Developer</option>
+	<option>SAP HANA Consultant</option>
+	<option>SAS Developer</option>
+	<option>Senior Advisor IT Infrastructure</option>
+	<option>Senior Advisor Technical Writer</option>
+	<option>Senior Agile Engineer</option>
+	<option>Senior Analyst</option>
+	<option>Senior Analyst Programmer</option>
+	<option>Senior Application Specialist</option>
+	<option>Senior Backend Developer</option>
+	<option>Senior Business Analyst</option>
+	<option>Senior Consultant - IT Security</option>
+	<option>Senior Database Administrator</option>
+	<option>Senior Developer</option>
+	<option>Senior Development Analyst</option>
+	<option>Senior Frontend Developer</option>
+	<option>Senior Hadoop Developer</option>
+	<option>Senior Java Developer</option>
+	<option>Senior Mainframe Developer</option>
+	<option>Senior Manager</option>
+	<option>Senior Manager- HR</option>
+	<option>Senior Oracle Database Administrator</option>
+	<option>Senior Pega Developer</option>
+	<option>Senior Programmer</option>
+	<option>Senior QA Engineer</option>
+	<option>Senior RPA Consultant</option>
+	<option>Senior Software Developer</option>
+	<option>Senior Software Engineer</option>
+	<option>Senior Software Engineer (Frontend)</option>
+	<option>Senior Software Engineer- IT</option>
+	<option>Senior Solution Architect</option>
+	<option>Senior Specialist, Product Offer Management</option>
+	<option>Senior System Administrator</option>
+	<option>Senior System Analyst</option>
+	<option>Senior Talent Acquisition Executive</option>
+	<option>Senior Technical Analyst</option>
+	<option>Senior Technical Architect</option>
+	<option>Senior Technical Consultant</option>
+	<option>Senior Technical Manager</option>
+	<option>Senior Test Engineer</option>
+	<option>Senior Web Methods Consultant</option>
+	<option>Software Developer</option>
+	<option>Software Engineer</option>
+	<option>Software Engineer – Front End</option>
+	<option>Software Engineer 2</option>
+	<option>Solution Support Specialist</option>
+	<option>Specialist IT Application Management</option>
+	<option>Specialist QA Tester</option>
+	<option>Specialist, Customer Service</option>
+	<option>Specialist, Customer Services</option>
+	<option>Specialist, IT Application Management- Malaysia</option>
+	<option>Specialist, IT Service Operations</option>
+	<option>SQL Developer</option>
+	<option>SR Lead Engineer</option>
+	<option>SR. Advisor IT Service Operations</option>
+	<option>SR. Analyst Project/ Programme Management</option>
+	<option>SR. Developer</option>
+	<option>SR. Full Stack Developer</option>
+	<option>SR. Java Developer</option>
+	<option>SR. Programme Manager</option>
+	<option>SR. SAS Developer</option>
+	<option>SR. Software Engineer</option>
+	<option>SR. Test Engineer</option>
+	<option>Storage Consultant</option>
+	<option>Storage Engineer</option>
+	<option>Store Lead</option>
+	<option>Support Analyst</option>
+	<option>System Analyst</option>
+	<option>Technical Analyst</option>
+	<option>Technical Architect</option>
+	<option>Technical Consultant</option>
+	<option>Technical Consultant-Recruitment</option>
+	<option>Technical Evaluation Consultant</option>
+	<option>Technical Lead</option>
+	<option>Technical Manager</option>
+	<option>Technical Operations Consultant</option>
+	<option>Technical Recruiter</option>
+	<option>Technical Specialist</option>
+	<option>Technical Specialist-Metadata</option>
+	<option>Test Engineer</option>
+	<option>Test Lead</option>
+	<option>Transaction Process Associate</option>
+	<option>UI/UX Developer</option>
+	<option>UiPath Developer</option>
+	<option>VM Ware Senior Engineer</option>
+	<option>Wintel Engineer</option>
+          </select>
+          <div id="positionOtherDiv1" style="display:none">
+            <label>If Other, specify:</label>
+            <input type="text" name="positionOther1" />
+          </div>
+          <label>Expected Joining Date *</label>
+          <input type="date" name="joiningDate" required />
+          <label>Full Name (as per passport/ IC) *</label>
+          <input type="text" name="fullName" required />
+	<label>Date of Birth *</label>
+        <input type="date" name="dob" required />
+		<label>Gender *</label>
+        <select name="gender" required>
+          <option value="">-- Select --</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+        <label>Age</label>
+        <input type="number" name="age" />
+        <label>State of Birth</label>
+        <input type="text" name="stateOfBirth" />
+<label>Marital Status *</label>
+<select name="maritalStatus" onchange="toggleMarriedFields(this); toggleOtherField(this, 'maritalOtherDiv')" required>
+  <option value="">-- Select --</option>
+  <option>Divorced</option>
+  <option>Married</option>
+  <option>Single</option>
+  <option>Widow/Widower</option>
+</select>
+<div id="marriedFields" style="display: none;">
+  <label>Date of Marriage *</label>
+  <input type="date" name="marriageDate" id="marriageDate" />
+  <label>Number of Kids *</label>
+  <input type="number" name="numberOfKids" id="numberOfKids" min="0" />
+</div>
+          <label>Currently in Malaysia *</label>
+          <select name="currentlyInMalaysia" id="currentlyInMalaysia" onchange="toggleMalaysiaFields()" required>
+            <option value="">-- Select --</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+          <label>Citizenship *</label>
+          <select name="citizenship" id="citizenship" onchange="toggleCitizenshipFields()" required>
+            <option value="">-- Select --</option>
+            <option>Albania</option>
+	<option>Algeria</option>
+	<option>Andorra</option>
+	<option>Angola</option>
+	<option>Antigua and Barbuda</option>
+	<option>Argentina</option>
+	<option>Armenia</option>
+	<option>Australia</option>
+	<option>Austria</option>
+	<option>Azerbaijan</option>
+	<option>Bahamas</option>
+	<option>Bahrain</option>
+	<option>Bangladesh</option>
+	<option>Barbados</option>
+	<option>Belarus</option>
+	<option>Belgium</option>
+	<option>Belize</option>
+	<option>Benin</option>
+	<option>Bhutan</option>
+	<option>Bolivia</option>
+	<option>Bosnia and Herzegovina</option>
+	<option>Botswana</option>
+	<option>Brazil</option>
+	<option>Brunei</option>
+	<option>Bulgaria</option>
+	<option>Burkina Faso</option>
+	<option>Burundi</option>
+	<option>Cambodia</option>
+	<option>Cameroon</option>
+	<option>Canada</option>
+	<option>China</option>
+	<option>Colombia</option>
+	<option>Denmark</option>
+	<option>Egypt</option>
+	<option>Ethiopia</option>
+	<option>Fiji</option>
+	<option>Finland</option>
+	<option>France</option>
+	<option>Gabon</option>
+	<option>Gambia</option>
+	<option>Georgia</option>
+	<option>Germany</option>
+	<option>Ghana</option>
+	<option>Greece</option>
+	<option>Grenada</option>
+	<option>Guatemala</option>
+	<option>Guinea</option>
+	<option>Guinea-Bissau</option>
+	<option>Guyana</option>
+	<option>Haiti</option>
+	<option>Holy See</option>
+	<option>Honduras</option>
+	<option>Hungary</option>
+	<option>Iceland</option>
+	<option>India</option>
+	<option>Indonesia</option>
+	<option>Iran</option>
+	<option>Iraq</option>
+	<option>Ireland</option>
+	<option>Israel</option>
+	<option>Italy</option>
+	<option>Jamaica</option>
+	<option>Japan</option>
+	<option>Jordan</option>
+	<option>Kazakhstan</option>
+	<option>Kenya</option>
+	<option>Kiribati</option>
+	<option>Kuwait</option>
+	<option>Kyrgyzstan</option>
+	<option>Laos</option>
+	<option>Latvia</option>
+	<option>Lebanon</option>
+	<option>Lesotho</option>
+	<option>Liberia</option>
+	<option>Libya</option>
+	<option>Liechtenstein</option>
+	<option>Lithuania</option>
+	<option>Luxembourg</option>
+	<option>Madagascar</option>
+	<option>Malawi</option>
+	<option>Malaysia</option>
+	<option>Maldives</option>
+	<option>Mali</option>
+	<option>Malta</option>
+	<option>Marshall Islands</option>
+	<option>Mauritania</option>
+	<option>Mauritius</option>
+	<option>Mexico</option>
+	<option>Micronesia</option>
+	<option>Moldova</option>
+	<option>Monaco</option>
+	<option>Mongolia</option>
+	<option>Montenegro</option>
+	<option>Morocco</option>
+	<option>Mozambique</option>
+	<option>Myanmar</option>
+	<option>Namibia</option>
+	<option>Nauru</option>
+	<option>Nepal</option>
+	<option>Netherlands</option>
+	<option>New Zealand</option>
+	<option>Nicaragua</option>
+	<option>Niger</option>
+	<option>Nigeria</option>
+	<option>North Korea</option>
+	<option>North Macedonia</option>
+	<option>Norway</option>
+	<option>Oman</option>
+	<option>Pakistan</option>
+	<option>Palau</option>
+	<option>Palestine State</option>
+	<option>Panama</option>
+	<option>Papua New Guinea</option>
+	<option>Paraguay</option>
+	<option>Peru</option>
+	<option>Philippines</option>
+	<option>Poland</option>
+	<option>Portugal</option>
+	<option>Qatar</option>
+	<option>Romania</option>
+	<option>Russia</option>
+	<option>Rwanda</option>
+	<option>Saint Kitts and Nevis</option>
+	<option>Saint Lucia</option>
+	<option>Saint Vincent and the Grenadines</option>
+	<option>Samoa</option>
+	<option>San Marino</option>
+	<option>Sao Tome and Principe</option>
+	<option>Saudi Arabia</option>
+	<option>Senegal</option>
+	<option>Serbia</option>
+	<option>Seychelles</option>
+	<option>Sierra Leone</option>
+	<option>Singapore</option>
+	<option>Slovakia</option>
+	<option>Slovenia</option>
+	<option>Solomon Islands</option>
+	<option>Somalia</option>
+	<option>South Africa</option>
+	<option>South Korea</option>
+	<option>South Sudan</option>
+	<option>Spain</option>
+	<option>Sri Lanka</option>
+	<option>Sudan</option>
+	<option>Suriname</option>
+	<option>Sweden</option>
+	<option>Switzerland</option>
+	<option>Syria</option>
+	<option>Tajikistan</option>
+	<option>Tanzania</option>
+	<option>Thailand</option>
+	<option>Timor-Leste</option>
+	<option>Togo</option>
+	<option>Tonga</option>
+	<option>Trinidad and Tobago</option>
+	<option>Tunisia</option>
+	<option>Turkey</option>
+	<option>Turkmenistan</option>
+	<option>Tuvalu</option>
+	<option>Uganda</option>
+	<option>Ukraine</option>
+	<option>United Arab Emirates</option>
+	<option>United Kingdom</option>
+	<option>Uzbekistan</option>
+	<option>Vanuatu</option>
+	<option>Venezuela</option>
+	<option>Vietnam</option>
+	<option>Yemen</option>
+	<option>Zimbabwe</option>
+	<option>Other</option>
+          </select>
+          <div id="citizenshipOtherDiv" style="display:none">
+            <label>If Other, specify:</label>
+            <input type="text" name="citizenshipOther" />
+          </div>
+	<label>Race</label>
+        <input type="text" name="race" />
+        <label>Religion</label>
+        <input type="text" name="religion" />
+	 <label>Country of Citizenship Address *</label>
+         <textarea name="homeCountryAddress" rows="3" required></textarea>
+         <label>Number of Years of Stay (Home) *</label>
+         <input type="number" name="yearsOfStayHome" required />
+          <label>Complete Address in Malaysia </label>
+          <textarea name="completeAddressMalaysia" id="completeAddressMalaysia" rows="3"></textarea>
+          <label>Number of Years of Stay (Malaysia)</label>
+          <input type="number" name="yearsOfStayMalaysia" id="yearsOfStayMalaysia" />
+          <label>Start date of residence in Malaysia</label>
+         <input type="date" name="durationStayFrom" />
+        <label>End date of residence in Malaysia</label>
+        <input type="date" name="durationStayTo" />
+          <label>IC Number</label>
+          <input type="text" name="icNumber" id="icNumber" />
+	<label>Place of Issue</label>
+          <input type="text" name="icPlaceOfIssue" />
+          <label>Date of Issue</label>
+          <input type="date" name="icDateOfIssue" />
+         <label>Date of Expiry</label>
+         <input type="date" name="icDateOfExpiry" />
+          <label>Primary Passport</label>
+          <input type="text" name="primaryPassport" id="primaryPassport" />
+       	  <label>Place of Issue</label>
+          <input type="text" name="passportPlaceOfIssue" />
+          <label>Date of Issue</label>
+          <input type="date" name="passportDateOfIssue" />
+         <label>Date of Expiry</label>
+         <input type="date" name="passportDateOfExpiry" />
+        <label>Visa Collection Centre</label>
+        <input type="text" name="visaCollectionCentre" />
+        <label>Mother’s Maiden Name</label>
+        <input type="text" name="mothersMaidenName" />
+		<label>Major Skill Set</label>
+        <input type="text" name="majorSkillSet" required />
+          <div class="button-row">
+            <button type="button" onclick="nextSection()">Next</button>
+          </div>
+        </div>
+
+        <!-- Section 2: Contact Info -->
+        <div class="form-section">
+          <h2>Contact Info</h2>
+          <label>Email *</label>
+          <input type="email" name="email2" required />
+          <label>Mobile Number *</label>
+	  <input type="tel" name="mobile2" required pattern="[0-9]{10,15}" title="Please enter a valid mobile number (10–15 digits)" />
+         <label>Tel (Home)</label>
+        <input type="text" name="telHome" />
+        <label>WhatsApp No</label>
+        <input type="text" name="whatsappNo" />
+        <label>LinkedIn URL</label>
+        <input type="text" name="linkedInId" />
+        <label>Facebook URL</label>
+        <input type="text" name="facebook" />
+        <label>Job Location</label>
+        <select name="joblocation">
+          <option value="">-- Select --</option>
+          <option>Johor Bahru</option>
+          <option>Kuala Lumpur</option>
+	  <option>Penang</option>
+	  <option>Selangor</option>
+        </select>
+          <div class="button-row">
+            <button type="button" onclick="prevSection()">Previous</button>
+            <button type="button" onclick="nextSection()">Next</button>
+          </div>
+        </div>
+
+        <!-- Section 3: Bank Info -->
+        <div class="form-section">
+          <h2>Bank Info</h2>
+          <label>Bank Name *</label>
+          <select name="bank" onchange="toggleOtherField(this, 'otherBankDiv')" required>
+            <option value="">-- Select --</option>
+            <option>Affin Bank</option>
+	<option>Ambank</option>
+	<option>Cimb Bank</option>
+	<option>Citi Bank</option>
+	<option>Hong Leong Bank</option>
+	<option>Hsbc Bank</option>
+	<option>May Bank</option>
+	<option>Ocbc Bank</option>
+	<option>Public Bank</option>
+	<option>Rhb Bank</option>
+	<option>Standard Chartered Bank</option>
+	<option>Uob Bank</option>
+	<option>Other</option>
+          </select>
+          <div id="otherBankDiv" style="display:none">
+            <label>If Other, specify:</label>
+            <input type="text" name="bankOther" />
+          </div>
+          <label>Bank Account Number *</label>
+          <input type="text" name="bankAccount" required />
+          <label>Bank Account Type</label>
+          <input type="text" name="accountType" />
+          <label>Income Tax Number</label>
+          <input type="text" name="taxNumber" />
+         <label>EPF Number</label>
+        <input type="text" name="epfNumber" />
+         <label>EPF Rate(11%)</label>
+        <input type="text" name="epfRate" />
+        <label>SOCSO Number</label>
+        <input type="text" name="socsoNumber" />
+        <div class="button-row">
+            <button type="button" onclick="prevSection()">Previous</button>
+            <button type="button" onclick="nextSection()">Next</button>
+          </div>
+        </div>
+      <!-- SECTION 4: Employment History -->
+      <div class="form-section">
+        <h2>Employment History</h2>
+        <div id="employmentSection">
+          <div class="employment-block">
+            <label>Company Name *</label>
+            <input type="text" name="company[]" required />
+
+            <label>From *</label>
+            <input type="date" name="from[]" required />
+
+            <label>To *</label>
+            <input type="date" name="to[]" required />
+
+            <label>Employee ID</label>
+            <input type="text" name="employeeId[]" />
+
+            <label>Contact Number</label>
+            <input type="text" name="contactNumber[]" />
+
+            <label>Position *</label>
+            <input type="text" name="jobTitle[]" required />
+
+            <label>Office Address</label>
+            <textarea name="officeAddress[]" rows="2" required></textarea>
+
+            <label>Reference Name</label>
+            <input type="text" name="refName[]" />
+
+            <label>Reference Contact No</label>
+            <input type="text" name="refPhone[]" />
+
+            <label>Reference Position</label>
+            <input type="text" name="refPosition[]" />
+
+            <label>Reference Email ID</label>
+            <input type="email" name="refEmail[]" />
+
+            <label>Reason For Leaving</label>
+            <textarea name="reasonForLeaving[]" rows="2"></textarea>
+
+            <label>Last Drawn Monthly Salary</label>
+            <input type="text" name="lastSalary[]" />
+          </div>
+        </div>
+        <button type="button" onclick="addEmployment()">+ Add More</button>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+        <!-- SECTION 5: Education -->
+      <div class="form-section">
+        <h2>Education</h2>
+        <div id="eduSection">
+          <div class="edu-block">
+            <label>Name Of School / Univ. *</label>
+            <input type="text" name="eduSchool[]" required />
+
+            <label>Institute Name *</label>
+            <input type="text" name="eduInstitute[]" required />
+
+            <label>Graduated (Yes / No) *</label>
+            <select name="eduGraduated[]" required>
+              <option value="">-- Select --</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+			<label>Year Graduated *</label>
+            <input type="number" name="eduYear[]" required />
+			  
+            <label>Educational Qualification *</label>
+            <input type="text" name="eduDegree[]" required />
+
+            <label>GPA Score / %</label>
+            <input type="text" name="eduGPA[]" />
+
+            <label>Field of Study / Major *</label>
+            <input type="text" name="eduStream[]" required />
+          </div>
+        </div>
+        <button type="button" onclick="addEducation()">+ Add More</button>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+        <!-- SECTION 6: Family Members -->
+        <div class="form-section">
+        <h2>Family Members</h2>
+        <div id="familySection">
+          <div class="family-block">
+            <label>Complete Name *</label>
+            <input type="text" name="familyName[]" required />
+
+            <label>Relationship *</label>
+            <select name="familyRelation[]" required>
+              <option value="">-- Select --</option>
+		<option>Aunt</option>
+		<option>Brother</option>
+		<option>Cousin</option>
+		<option>Daughter</option>
+		<option>Father</option>
+		<option>Father In Law</option>
+		<option>Granddaughter</option>
+		<option>Grandfather</option>
+		<option>Grandmother</option>
+		<option>Grandson</option>
+		<option>Mother</option>
+		<option>Mother In Law</option>
+		<option>Nephew</option>
+		<option>Niece</option>
+		<option>Sister</option>
+		<option>Son</option>
+		<option>Spouse</option>
+		<option>Uncle</option>		
+              <option>Other</option>
+            </select>
+
+            <label>IC / Passport Number *</label>
+            <input type="text" name="familyPassport[]" required />
+
+            <label>Date Of Birth *</label>
+            <input type="date" name="familyDOB[]" required />
+
+            <label>Occupation</label>
+            <input type="text" name="familyOccupation[]" />
+          </div>
+        </div>
+        <button type="button" onclick="addFamily()">+ Add More</button>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+	<!-- SECTION 7: Emergency Contact -->
+      <div class="form-section">
+        <h2>Emergency Contact</h2>
+        <label>Full Name *</label>
+        <input type="text" name="emergencyName" required />
+
+	<label>Relationship *</label>
+            <select name="emergencyRelation" required>
+              <option value="">-- Select --</option>
+		<option>Aunt</option>
+		<option>Brother</option>
+		<option>Cousin</option>
+		<option>Daughter</option>
+		<option>Father</option>
+		<option>Father In Law</option>
+		<option>Granddaughter</option>
+		<option>Grandfather</option>
+		<option>Grandmother</option>
+		<option>Grandson</option>
+		<option>Mother</option>
+		<option>Mother In Law</option>
+		<option>Nephew</option>
+		<option>Niece</option>
+		<option>Sister</option>
+		<option>Son</option>
+		<option>Spouse</option>
+		<option>Uncle</option>
+              <option>Other</option>
+            </select>
+
+        <label>Phone *</label>
+        <input type="tel" name="emergencyPhone" required />
+
+        <label>Address *</label>
+        <textarea name="emergencyAddress" rows="3" required></textarea>
+
+        <label>Location *</label>
+        <select name="emergencyLocation" required>
+          <option value="">-- Select --</option>
+          <option>Malaysia</option>
+          <option>Home Country</option>
+        </select>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+     <!-- SECTION 8: Certifications -->
+      <div class="form-section">
+        <h2>Certifications</h2>
+        <div id="certSection">
+          <div class="cert-block">
+            <label>Institution</label>
+            <input type="text" name="certInstitution[]"  />
+
+            <label>Completion Date</label>
+            <input type="date" name="certCompletionDate[]"  />
+
+            <label>Course Title</label>
+            <input type="text" name="certCourseTitle[]"  />
+
+            <label>Certification No</label>
+            <input type="text" name="certNumber[]"  />
+          </div>
+        </div>
+        <button type="button" onclick="addCertification()">+ Add More</button>
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+        <!-- SECTION 9: Office Use Only -->
+      <div class="form-section">
+        <h2>Office Use Only</h2>
+
+        <label>Cost Center Code</label>
+        <input type="text" name="costCenterCode" />
+
+        <label>Cost Center Name</label>
+        <input type="text" name="costCenterName" />
+
+        <label>Actual Joining Date</label>
+        <input type="date" name="actualJoiningDate" />
+
+        <label>Category</label>
+        <select name="category">
+          <option value="">-- Select --</option>
+          <option>Permanent</option>
+          <option>Contract</option>
+          <option>Intern</option>
+          <option>Other</option>
+        </select>
+
+        <label>Department</label>
+        <select name="department">
+          <option value="">-- Select --</option>
+          <option>IT</option>
+          <option>HR</option>
+          <option>Finance</option>
+          <option>Marketing</option>
+          <option>Operations</option>
+	  <option>Recruitment</option>
+          <option>Other</option>
+        </select>
+
+        <label>Project</label>
+        <input type="text" name="project" />
+
+        <label>Position Applied for</label>
+        <input type="text" name="officePositionApplied" />
+
+        <label>Date</label>
+        <input type="date" name="officeUseDate" />
+
+        <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div>
+
+        <!-- SECTION 10: Final Submit -->
+        <div class="form-section">
+          <h2>Review & Submit</h2>
+          <p>Please review all your entries and submit the form.</p>
+          <div class="button-row">
+            <button type="button" onclick="prevSection()">Previous</button>
+            <button type="submit">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+</div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="script.js?v=1.0.14"></script>
+</body>
+</html>
