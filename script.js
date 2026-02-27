@@ -50,10 +50,18 @@ function enforceNumericOnly(el) {
 
 function attachNumericGuards() {
   const selectors = [
-    'input[name="mobileNumber"]',
+    'input[name="mobile2"]',
+    'input[name="mobileCountryCode"]',
     'input[name="telHome"]',
     'input[name="whatsappNo"]',
-    'input[name="bankAccountNumber"]'
+    'input[name="whatsappCountryCode"]',
+    'input[name="emergencyPhone"]',
+    'input[name="emergencyPhoneCountryCode"]',
+    'input[name="contactNumber[]"]',
+    'input[name="contactCountryCode[]"]',
+    'input[name="refPhone[]"]',
+    'input[name="refPhoneCountryCode[]"]',
+    'input[name="bankAccount"]'
   ];
   selectors.forEach(sel => {
     document.querySelectorAll(sel).forEach(input => {
@@ -270,64 +278,112 @@ function toggleOtherField(selectElement, targetDivId) {
 }
 
 function toggleMalaysiaFields() {
-  const isMalaysia = document.getElementById('currentlyInMalaysia').value === 'Yes';
+  const isMalaysia = document.getElementById('currentlyInMalaysia')?.value === 'Yes';
+
+  const malaysiaBlock = document.getElementById('malaysiaStayFields');
   const addr = document.getElementById('completeAddressMalaysia');
   const years = document.getElementById('yearsOfStayMalaysia');
+  const from = document.querySelector('[name="durationStayFrom"]');
+  const to = document.querySelector('[name="durationStayTo"]');
 
+  if (malaysiaBlock) malaysiaBlock.style.display = isMalaysia ? 'block' : 'none';
+
+  // Required only when "Currently in Malaysia" = Yes
   if (addr) addr.required = isMalaysia;
   if (years) years.required = isMalaysia;
+
+  // Start/End dates are optional (as per your requirement)
+  if (from) from.required = false;
+  if (to) to.required = false;
 
   if (!isMalaysia) {
     if (addr) addr.value = '';
     if (years) years.value = '';
+    if (from) from.value = '';
+    if (to) to.value = '';
   }
 }
 
 function toggleCitizenshipFields() {
-  const citizenship = document.getElementById('citizenship').value;
+  const citizenship = document.getElementById('citizenship')?.value || '';
   const citizenshipOtherDiv = document.getElementById('citizenshipOtherDiv');
+
+  const homeCountryFields = document.getElementById('homeCountryFields');
+
+  const icFields = document.getElementById('icFields');
+  const passportFields = document.getElementById('passportFields');
+
+  // IC fields
   const icNumber = document.getElementById('icNumber');
   const icPlace = document.querySelector('[name="icPlaceOfIssue"]');
   const icIssue = document.querySelector('[name="icDateOfIssue"]');
   const icExpiry = document.querySelector('[name="icDateOfExpiry"]');
+
+  // Passport fields
   const primaryPassport = document.getElementById('primaryPassport');
   const passportPlace = document.querySelector('[name="passportPlaceOfIssue"]');
   const passportIssue = document.querySelector('[name="passportDateOfIssue"]');
   const passportExpiry = document.querySelector('[name="passportDateOfExpiry"]');
 
+  // Home country address + years
+  const homeAddr = document.querySelector('[name="homeCountryAddress"]');
+  const yearsHome = document.querySelector('[name="yearsOfStayHome"]');
+
+  // Handle "Other" citizenship extra text field
   if (citizenship === 'Other') {
     if (citizenshipOtherDiv) citizenshipOtherDiv.style.display = 'block';
-    if (primaryPassport) primaryPassport.required = true;
-    if (passportPlace) passportPlace.required = true;
-    if (passportIssue) passportIssue.required = true;
-    if (passportExpiry) passportExpiry.required = true;
-
-    if (icNumber) icNumber.required = false;
-    if (icPlace) icPlace.required = false;
-    if (icIssue) icIssue.required = false;
-    if (icExpiry) icExpiry.required = false;
+    const input = citizenshipOtherDiv?.querySelector('input');
+    if (input) input.required = true;
   } else {
     if (citizenshipOtherDiv) citizenshipOtherDiv.style.display = 'none';
     const input = citizenshipOtherDiv?.querySelector('input');
-    if (input) input.value = '';
-
-    if (citizenship === 'Malaysia') {
-      if (icNumber) icNumber.required = true;
-      if (icPlace) icPlace.required = true;
-      if (icIssue) icIssue.required = true;
-      if (icExpiry) icExpiry.required = true;
-
-      if (primaryPassport) primaryPassport.required = false;
-      if (passportPlace) passportPlace.required = false;
-      if (passportIssue) passportIssue.required = false;
-      if (passportExpiry) passportExpiry.required = false;
-    } else {
-      // Singaporean case or else
-      if (primaryPassport) primaryPassport.required = true;
-      if (passportPlace) passportPlace.required = true;
-      if (passportIssue) passportIssue.required = true;
-      if (passportExpiry) passportExpiry.required = true;
+    if (input) {
+      input.required = false;
+      input.value = '';
     }
+  }
+
+  const isMalaysianCitizen = citizenship === 'Malaysia';
+  const hasCitizenship = citizenship !== '' && citizenship !== 'Other'; // includes Malaysia + other countries
+
+  // Show/Hide IC vs Passport fields
+  if (icFields) icFields.style.display = isMalaysianCitizen ? 'block' : 'none';
+  if (passportFields) passportFields.style.display = isMalaysianCitizen ? 'none' : (citizenship ? 'block' : 'none');
+
+  // Required rules:
+  // - If citizenship = Malaysia => IC fields required, Passport not required
+  // - If citizenship != Malaysia (including Other or any country) => Passport required, IC not required
+  const requireIC = isMalaysianCitizen;
+  const requirePassport = citizenship !== '' && !isMalaysianCitizen;
+
+  if (icNumber) icNumber.required = requireIC;
+  if (icPlace) icPlace.required = requireIC;
+  if (icIssue) icIssue.required = requireIC;
+  if (icExpiry) icExpiry.required = requireIC;
+
+  if (primaryPassport) primaryPassport.required = requirePassport;
+  if (passportPlace) passportPlace.required = requirePassport;
+  if (passportIssue) passportIssue.required = requirePassport;
+  if (passportExpiry) passportExpiry.required = requirePassport;
+
+  // Clear hidden fields to avoid accidental submission
+  if (!requireIC) {
+    [icNumber, icPlace, icIssue, icExpiry].forEach(el => { if (el) el.value = ''; });
+  }
+  if (!requirePassport) {
+    [primaryPassport, passportPlace, passportIssue, passportExpiry].forEach(el => { if (el) el.value = ''; });
+  }
+
+  // Home country fields: hide if Malaysian citizen, otherwise show + required
+  if (homeCountryFields) homeCountryFields.style.display = isMalaysianCitizen ? 'none' : (citizenship ? 'block' : 'none');
+  const requireHome = citizenship !== '' && !isMalaysianCitizen;
+
+  if (homeAddr) homeAddr.required = requireHome;
+  if (yearsHome) yearsHome.required = requireHome;
+
+  if (!requireHome) {
+    if (homeAddr) homeAddr.value = '';
+    if (yearsHome) yearsHome.value = '';
   }
 }
 
@@ -349,6 +405,22 @@ function toggleMarriedFields(selectElem) {
   }
 }
 
+
+function toggleGraduationYear(selectEl) {
+  // Works for multiple Education blocks
+  const block = selectEl?.closest('.edu-block');
+  if (!block) return;
+
+  const wrap = block.querySelector('.grad-year');
+  const yearInput = block.querySelector('input[name="eduYear[]"]');
+
+  const show = (selectEl.value || '').toLowerCase() === 'yes';
+
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+  if (yearInput) yearInput.required = show;
+
+  if (!show && yearInput) yearInput.value = '';
+}
 
 function addEmployment() {
   const container = document.getElementById('employmentSection');
@@ -489,8 +561,10 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     },
     contactInfo: {
       email: document.querySelector('[name="email2"]').value,
+      mobileCountryCode: document.querySelector('[name="mobileCountryCode"]').value,
       mobile: document.querySelector('[name="mobile2"]').value,
       telHome: document.querySelector('[name="telHome"]').value,
+      whatsappCountryCode: document.querySelector('[name="whatsappCountryCode"]').value,
       whatsappNo: document.querySelector('[name="whatsappNo"]').value,
       linkedInId: document.querySelector('[name="linkedInId"]').value,
       facebook: document.querySelector('[name="facebook"]').value,
@@ -507,28 +581,18 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       socsoNumber: document.querySelector('[name="socsoNumber"]').value,
       majorSkillSet: document.querySelector('[name="majorSkillSet"]').value,
     },
-    employment: extractGroup(".employment-block", ["company", "from", "to", "employeeId", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
+    employment: extractGroup(".employment-block", ["company", "from", "to", "employeeId", "contactCountryCode", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhoneCountryCode", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
     emergencyContact: {
       name: document.querySelector('[name="emergencyName"]').value,
       relation: document.querySelector('[name="emergencyRelation"]').value,
+      phoneCountryCode: document.querySelector('[name="emergencyPhoneCountryCode"]').value,
       phone: document.querySelector('[name="emergencyPhone"]').value,
       address: document.querySelector('[name="emergencyAddress"]').value,
       location: document.querySelector('[name="emergencyLocation"]').value,
-    },
-    officeUse: {
-      costCenterCode: document.querySelector('[name="costCenterCode"]').value,
-      costCenterName: document.querySelector('[name="costCenterName"]').value,
-      actualJoiningDate: document.querySelector('[name="actualJoiningDate"]').value,
-      category: document.querySelector('[name="category"]').value,
-      department: document.querySelector('[name="department"]').value,
-      project: document.querySelector('[name="project"]').value,
-      positionApplied: document.querySelectorAll('[name="officePositionApplied"]')[1]?.value || '',
-      officeUseDate: document.querySelector('[name="officeUseDate"]').value,
-    }
-  };
+    }};
 // ✅ Add this line here:
   formData.authenticatedEmail = localStorage.getItem("userEmail");
   
