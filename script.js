@@ -139,6 +139,7 @@ function attachExcelSafeGuards() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  sections = document.querySelectorAll('.form-section');
   attachNumericGuards();
   initRemoveButtons();
   attachExcelSafeGuards();
@@ -189,13 +190,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // script.js
 
 let currentSection = 0;
-const sections = document.querySelectorAll('.form-section');
-
+let sections = [];
 function showSection(index) {
+  // Safety guard
+  if (!sections || sections.length === 0) return;
+
+  currentSection = Math.min(Math.max(index, 0), sections.length - 1);
+
   sections.forEach((section, i) => {
-    section.classList.toggle('active', i === index);
+    const isActive = i === currentSection;
+
+    // Keep class-based styling
+    section.classList.toggle('active', isActive);
+
+    // Extra safety: force display in case CSS is overridden
+    section.style.display = isActive ? 'block' : 'none';
   });
-  updateProgressBar(index);
+
+  updateProgressBar(currentSection);
 }
 
 function updateProgressBar(index) {
