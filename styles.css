@@ -562,3 +562,40 @@ button[onclick^="add"]{
     max-width: 80vw;
   }
 }
+
+
+/* ===== Uniform Input Styling ===== */
+input, select, textarea {
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.phone-group {
+  display: flex;
+  gap: 8px;
+}
+
+.phone-group select {
+  width: 150px;
+}
+
+.phone-group input {
+  flex: 1;
+}
+
+/* ===== Logo Focus Responsive ===== */
+.brand-logo {
+  height: 120px !important;
+  object-fit: contain;
+}
+
+@media (max-width: 600px){
+  .brand-row {
+    flex-direction: column;
+    align-items: center;
+  }
+  .brand-logo {
+    height: 95px !important;
+  }
+}
