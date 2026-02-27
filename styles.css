@@ -538,3 +538,27 @@ button[onclick^="add"]{
 .remove-block-btn:hover{
   filter: brightness(.95);
 }
+
+/* ===== Responsive Terrabit logo (bigger + focused) ===== */
+.brand-logo{
+  height: 96px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+@media (max-width: 900px){
+  .brand-logo{ height: 86px !important; }
+}
+
+@media (max-width: 520px){
+  .brand-row{
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-text{ text-align: center; }
+  .brand-logo{
+    height: 78px !important;
+    max-width: 80vw;
+  }
+}
