@@ -563,39 +563,41 @@ button[onclick^="add"]{
   }
 }
 
-
-/* ===== Uniform Input Styling ===== */
-input, select, textarea {
-  font-size: 14px;
-  padding: 8px 10px;
-  border-radius: 6px;
+/* ===== Inline country code dropdown next to phone number ===== */
+.phone-group{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.phone-group select{
+  width: 190px;
+  min-width: 170px;
+}
+.phone-group input{
+  flex:1;
 }
 
-.phone-group {
-  display: flex;
-  gap: 8px;
-}
-
-.phone-group select {
-  width: 150px;
-}
-
-.phone-group input {
-  flex: 1;
-}
-
-/* ===== Logo Focus Responsive ===== */
-.brand-logo {
+/* ===== Focused, responsive Terrabit logo ===== */
+.brand-logo{
   height: 120px !important;
+  width: auto !important;
   object-fit: contain;
 }
-
 @media (max-width: 600px){
-  .brand-row {
+  .brand-row{
     flex-direction: column;
     align-items: center;
+    gap: 8px;
   }
-  .brand-logo {
-    height: 95px !important;
-  }
+  .brand-text{ text-align:center; }
+  .brand-logo{ height: 95px !important; max-width: 80vw; }
+}
+
+/* ===== Uniform input sizing ===== */
+input, select, textarea{ font-size:14px; }
+
+/* ===== Phone dropdown responsive tweaks ===== */
+@media (max-width: 520px){
+  .phone-group{ flex-direction: column; align-items: stretch; }
+  .phone-group select{ width: 100%; min-width: 0; }
 }
