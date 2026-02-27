@@ -1073,9 +1073,6 @@
             <label>To *</label>
             <input type="date" name="to[]" required />
 
-            <label>Employee ID</label>
-            <input type="text" name="employeeId[]" />
-
             <label>Contact Number</label>
 <div class="phone-group">
   <select name="contactCountryCode[]">
@@ -1316,9 +1313,11 @@
 <option value="+263">Zimbabwe (+263)</option>
   </select>
   <input type="tel" name="contactNumber[]" placeholder="Contact Number" />
-</div>
-
-            <label>Position *</label>
+<div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div><label>Position *</label>
             <input type="text" name="jobTitle[]" required />
 
             <label>Office Address *</label>
@@ -1609,9 +1608,11 @@
             <div class="grad-year" style="display:none;">
               <label>Year of Graduation *</label>
               <input type="number" name="eduYear[]" />
-            </div>
-			  
-            <label>Educational Qualification *</label>
+            <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div><label>Educational Qualification *</label>
             <input type="text" name="eduDegree[]" required />
 
             <label>GPA Score / %</label>
@@ -1644,8 +1645,11 @@
 
             <label>Certification No</label>
             <input type="text" name="certNumber[]"  />
-          </div>
+          <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
         </div>
+      </div></div>
         <button type="button" onclick="addCertification()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
@@ -1693,8 +1697,11 @@
 
             <label>Occupation</label>
             <input type="text" name="familyOccupation[]" />
-          </div>
+          <div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
         </div>
+      </div></div>
         <button type="button" onclick="addFamily()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
@@ -1976,9 +1983,11 @@
 
   </select>
   <input type="tel" name="emergencyPhone" required pattern="[0-9]{7,15}" title="Please enter a valid phone number (7–15 digits)" placeholder="Phone Number" />
-</div>
-
-        <label>Address *</label>
+<div class="button-row">
+          <button type="button" onclick="prevSection()">Previous</button>
+          <button type="button" onclick="nextSection()">Next</button>
+        </div>
+      </div><label>Address *</label>
         <textarea name="emergencyAddress" rows="3" required></textarea>
 
         <label>Location *</label>
