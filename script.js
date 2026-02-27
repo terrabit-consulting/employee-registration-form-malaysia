@@ -593,7 +593,7 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       socsoNumber: document.querySelector('[name="socsoNumber"]').value,
       majorSkillSet: document.querySelector('[name="majorSkillSet"]').value,
     },
-    employment: extractGroup(".employment-block", ["company", "from", "to", "employeeId", "contactCountryCode", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhoneCountryCode", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
+    employment: extractGroup(".employment-block", ["company", "from", "to", "contactCountryCode", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhoneCountryCode", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
