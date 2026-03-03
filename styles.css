@@ -539,6 +539,14 @@ button[onclick^="add"]{
   filter: brightness(.95);
 }
 
+/* Phone inline country code + number */
+.phone-group{display:flex;gap:10px;align-items:center;}
+.phone-group select{width:220px;min-width:180px;}
+.phone-group input{flex:1;}
+@media (max-width:520px){
+  .phone-group{flex-direction:column;align-items:stretch;}
+  .phone-group select{width:100%;}
+}
 
 /* ===== Logo focus & responsiveness ===== */
 .brand-logo{
@@ -549,8 +557,5 @@ button[onclick^="add"]{
   image-rendering: -webkit-optimize-contrast;
 }
 @media (max-width: 600px){
-  .brand-logo{
-    height: 104px;
-    max-width: 82vw;
-  }
+  .brand-logo{height: 104px; max-width: 82vw;}
 }
