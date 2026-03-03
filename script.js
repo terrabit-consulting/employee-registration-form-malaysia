@@ -585,10 +585,10 @@ toggleMalaysiaFields();
     .catch(err => {
       console.error("⚠️ Submission error:", err);
       alert("⚠️ Submission error: " + err.message);
-    });
+    })
   .finally(() => {
     isSubmitting = false;
-    const submitBtn = document.querySelector(\'button[type="submit"]\');
+    const submitBtn = document.querySelector('button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Submit"; }
   });
 });
