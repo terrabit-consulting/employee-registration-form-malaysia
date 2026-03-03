@@ -239,13 +239,8 @@
           <div id="positionOtherDiv1" style="display:none">
             <label>If Other, specify:</label>
             <input type="text" name="positionOther1" />
-          
-    <div class="button-row">
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
-
-    </div>
-          <label>Expected Joining Date *</label>
+      </div>
+<label>Expected Joining Date *</label>
           <input type="date" name="joiningDate" required />
           <label>Full Name (as per passport/ IC) *</label>
           <input type="text" name="fullName" required />
@@ -498,10 +493,7 @@
         <input type="text" name="mothersMaidenName" />
 		<label>Major Skill Set</label>
         <input type="text" name="majorSkillSet" required />
-          <div class="button-row">
-            <button type="button" onclick="nextSection()">Next</button>
           </div>
-        </div>
 
         <!-- Section 2: Contact Info -->
         <div class="form-section">
@@ -526,7 +518,7 @@
 	  <option>Penang</option>
 	  <option>Selangor</option>
         </select>
-        </div>
+  </div>
 
         <!-- Section 3: Bank Info -->
         <div class="form-section">
@@ -551,14 +543,8 @@
           <div id="otherBankDiv" style="display:none">
             <label>If Other, specify:</label>
             <input type="text" name="bankOther" />
-          
-    <div class="button-row">
-      <button type="button" onclick="prevSection()">Previous</button>
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
-
-    </div>
-          <label>Bank Account Number *</label>
+      </div>
+<label>Bank Account Number *</label>
           <input type="text" name="bankAccount" required />
           <label>Bank Account Type</label>
           <input type="text" name="accountType" />
@@ -570,10 +556,6 @@
         <input type="text" name="epfRate" />
         <label>SOCSO Number</label>
         <input type="text" name="socsoNumber" />
-        <div class="button-row">
-            <button type="button" onclick="prevSection()">Previous</button>
-            <button type="button" onclick="nextSection()">Next</button>
-          </div>
         </div>
       <!-- SECTION 4: Employment History -->
       <div class="form-section">
@@ -615,21 +597,9 @@
 
             <label>Last Drawn Monthly Salary</label>
             <input type="text" name="lastSalary[]" />
-          
-    <button type="button" onclick="addEmployment()">+ Add More</button>
-    <div class="button-row">
-      <button type="button" onclick="prevSection()">Previous</button>
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
-
-    </div>
-        </div>
-        <button type="button" onclick="addEmployment()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
       </div>
+</div>
+        </div>
 
         <!-- SECTION 5: Education -->
       <div class="form-section">
@@ -659,12 +629,7 @@
 
             <label>Field of Study / Major *</label>
             <input type="text" name="eduStream[]" required />
-          
-    <button type="button" onclick="addEducation()">+ Add More</button>
-    <div class="button-row">
-      <button type="button" onclick="prevSection()">Previous</button>
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
+      
 
 <div class="form-section">
         <h2>Certifications</h2>
@@ -681,23 +646,11 @@
 
             <label>Certification No</label>
             <input type="text" name="certNumber[]"  />
-          
-    <button type="button" onclick="addCertification()">+ Add More</button>
-    <div class="button-row">
-      <button type="button" onclick="prevSection()">Previous</button>
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
+      
 
-
-
-    </div>
+</div>
+</div>
         </div>
-        <button type="button" onclick="addEducation()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
-      </div>
 
         <!-- SECTION 6: Family Members -->
         <div class="form-section">
@@ -739,32 +692,20 @@
 
             <label>Occupation</label>
             <input type="text" name="familyOccupation[]" />
-          
-    <button type="button" onclick="addFamily()">+ Add More</button>
-    <div class="button-row">
-      <button type="button" onclick="prevSection()">Previous</button>
-      <button type="button" onclick="nextSection()">Next</button>
-    </div>
-
-    </div>
-        </div>
-        <button type="button" onclick="addFamily()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
       </div>
+</div>
+        </div>
 
 	<!-- SECTION 7: Emergency Contact -->
       <div class="form-section">
         <h2>Emergency Contact</h2>
-    <div id="emergencySection">
-      <div class="emergency-block">
-        <label>Full Name *</label>
-        <input type="text" name="emergencyName" required />
+        <div id="emergencySection">
+          <div class="emergency-block">
+<label>Full Name *</label>
+        <input type="text" name="emergencyName[]" required />
 
 	<label>Relationship *</label>
-            <select name="emergencyRelation" required>
+            <select name="emergencyRelation[]" required>
               <option value="">-- Select --</option>
 		<option>Aunt</option>
 		<option>Brother</option>
@@ -788,33 +729,27 @@
             </select>
 
         <label>Phone *</label>
-        <input type="tel" name="emergencyPhone" required />
+        <input type="tel" name="emergencyPhone[]" required />
 
         <label>Address *</label>
-        <textarea name="emergencyAddress" rows="3" required></textarea>
+        <textarea name="emergencyAddress[]" rows="3" required></textarea>
 
         <label>Location *</label>
-        <select name="emergencyLocation" required>
+        <select name="emergencyLocation[]" required>
           <option value="">-- Select --</option>
           <option>Malaysia</option>
           <option>Home Country</option>
         </select>
-      </div>
-      </div>
-    </div>
-
+          
+  </div>
+        </div>
+        </div>
+</div>
 
      <!-- SECTION 8: Certifications -->
-      
-
-    </div>
-        </div>
-        <button type="button" onclick="addCertification()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
       </div>
+</div>
+        </div>
 
         <!-- SECTION 9: Office Use Only -->
       </div>
@@ -823,10 +758,6 @@
         <div class="form-section">
           <h2>Review & Submit</h2>
           <p>Please review all your entries and submit the form.</p>
-          <div class="button-row">
-            <button type="button" onclick="prevSection()">Previous</button>
-            <button type="submit">Submit</button>
-          </div>
         </div>
       </form>
     </div>
