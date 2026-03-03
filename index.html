@@ -239,11 +239,13 @@
           <div id="positionOtherDiv1" style="display:none">
             <label>If Other, specify:</label>
             <input type="text" name="positionOther1" />
-          <div class="button-row">
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
-      </div>
-<label>Expected Joining Date *</label>
+          
+    <div class="button-row">
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
+
+    </div>
+          <label>Expected Joining Date *</label>
           <input type="date" name="joiningDate" required />
           <label>Full Name (as per passport/ IC) *</label>
           <input type="text" name="fullName" required />
@@ -523,7 +525,8 @@
           <option>Kuala Lumpur</option>
 	  <option>Penang</option>
 	  <option>Selangor</option>
-        </select></div>
+        </select>
+        </div>
 
         <!-- Section 3: Bank Info -->
         <div class="form-section">
@@ -548,12 +551,14 @@
           <div id="otherBankDiv" style="display:none">
             <label>If Other, specify:</label>
             <input type="text" name="bankOther" />
-          <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
-      </div>
-<label>Bank Account Number *</label>
+          
+    <div class="button-row">
+      <button type="button" onclick="prevSection()">Previous</button>
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
+
+    </div>
+          <label>Bank Account Number *</label>
           <input type="text" name="bankAccount" required />
           <label>Bank Account Type</label>
           <input type="text" name="accountType" />
@@ -610,13 +615,15 @@
 
             <label>Last Drawn Monthly Salary</label>
             <input type="text" name="lastSalary[]" />
-          <button type="button" onclick="addEmployment()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
+          
+    <button type="button" onclick="addEmployment()">+ Add More</button>
+    <div class="button-row">
+      <button type="button" onclick="prevSection()">Previous</button>
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
+
+    </div>
         </div>
-      </div>
-</div>
         <button type="button" onclick="addEmployment()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
@@ -652,12 +659,12 @@
 
             <label>Field of Study / Major *</label>
             <input type="text" name="eduStream[]" required />
-          <button type="button" onclick="addEducation()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
-        </div>
-      
+          
+    <button type="button" onclick="addEducation()">+ Add More</button>
+    <div class="button-row">
+      <button type="button" onclick="prevSection()">Previous</button>
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
 
 <div class="form-section">
         <h2>Certifications</h2>
@@ -674,14 +681,17 @@
 
             <label>Certification No</label>
             <input type="text" name="certNumber[]"  />
-          <button type="button" onclick="addCertification()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
+          
+    <button type="button" onclick="addCertification()">+ Add More</button>
+    <div class="button-row">
+      <button type="button" onclick="prevSection()">Previous</button>
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
+
+
+
+    </div>
         </div>
-      
-</div>
-</div>
         <button type="button" onclick="addEducation()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
@@ -729,13 +739,15 @@
 
             <label>Occupation</label>
             <input type="text" name="familyOccupation[]" />
-          <button type="button" onclick="addFamilyMember()">+ Add More</button>
-        <div class="button-row">
-          <button type="button" onclick="prevSection()">Previous</button>
-          <button type="button" onclick="nextSection()">Next</button>
+          
+    <button type="button" onclick="addFamily()">+ Add More</button>
+    <div class="button-row">
+      <button type="button" onclick="prevSection()">Previous</button>
+      <button type="button" onclick="nextSection()">Next</button>
+    </div>
+
+    </div>
         </div>
-      </div>
-</div>
         <button type="button" onclick="addFamily()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
@@ -746,6 +758,8 @@
 	<!-- SECTION 7: Emergency Contact -->
       <div class="form-section">
         <h2>Emergency Contact</h2>
+    <div id="emergencySection">
+      <div class="emergency-block">
         <label>Full Name *</label>
         <input type="text" name="emergencyName" required />
 
@@ -784,11 +798,17 @@
           <option value="">-- Select --</option>
           <option>Malaysia</option>
           <option>Home Country</option>
-        </select></div>
+        </select>
+      </div>
+      </div>
+    </div>
+
 
      <!-- SECTION 8: Certifications -->
-      </div>
-</div>
+      
+
+    </div>
+        </div>
         <button type="button" onclick="addCertification()">+ Add More</button>
         <div class="button-row">
           <button type="button" onclick="prevSection()">Previous</button>
