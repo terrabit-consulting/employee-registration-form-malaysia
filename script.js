@@ -560,8 +560,9 @@ toggleMalaysiaFields();
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"])
-    emergencyContact: (() => { const arr = extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]); const first = arr && arr[0] ? arr[0] : {}; return { name: first.emergencyName || "", relation: first.emergencyRelation || "", phone: ((first.emergencyPhoneCountryCode||"") + " " + (first.emergencyPhone||"")).trim(), address: first.emergencyAddress || "", location: first.emergencyLocation || "" }; })(),};
+    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
+    emergencyContact: (() => { const arr = extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]); const first = arr && arr[0] ? arr[0] : {}; return { name: first.emergencyName || "", relation: first.emergencyRelation || "", phone: ((first.emergencyPhoneCountryCode||"") + " " + (first.emergencyPhone||"")).trim(), address: first.emergencyAddress || "", location: first.emergencyLocation || "" }; })()
+  };
 // ✅ Add this line here:
   formData.authenticatedEmail = localStorage.getItem("userEmail");
   
@@ -644,4 +645,3 @@ function bindGraduationYearToggles() {
     gradSel.addEventListener('change', () => toggleGraduationYearForBlock(block));
   });
 }
-
