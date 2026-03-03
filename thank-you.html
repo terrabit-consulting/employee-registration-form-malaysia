@@ -9,7 +9,7 @@
       text-align: center;
       padding: 50px;
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f4f6f8;
     }
 
     .logo {
@@ -52,9 +52,22 @@
     #logoutBtn:hover {
       background-color: #b71c1c;
     }
-  </style>
+  
+/* Thank you logo alignment fix */
+.thankyou-logo, .logo img, .thankyou-container img{
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.thankyou-wrap{
+  max-width: 980px;
+  margin: 0 auto;
+}
+</style>
 </head>
 <body>
+<div class="thankyou-wrap">
 
   <!-- Logo Section -->
   <img src="logo.png" alt="Terrabit Consulting Logo" class="logo" />
@@ -101,5 +114,6 @@
     });
   </script>
 
+</div>
 </body>
 </html>
