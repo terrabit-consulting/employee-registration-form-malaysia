@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logging out...</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body{background:#f4f6f9;margin:0;font-family:Arial,Helvetica,sans-serif;}
+    .card{max-width:700px;margin:80px auto;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);padding:40px 30px;text-align:center;}
+    .spin{width:34px;height:34px;border:4px solid #ddd;border-top:4px solid #2aa745;border-radius:50%;margin:18px auto;animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Logging out…</h2>
+    <div class="spin"></div>
+    <p>Please wait.</p>
+  </div>
+
+  <script type="module">
+    try {
+      if (window.firebase && firebase.auth) {
+        await firebase.auth().signOut();
+      }
+    } catch(e) {
+      // ignore
+    } finally {
+      window.location.replace("index.html");
+    }
+  </script>
+</body>
+</html>
