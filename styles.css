@@ -542,12 +542,15 @@ button[onclick^="add"]{
 
 /* ===== Logo focus & responsiveness ===== */
 .brand-logo{
-  height: 86px !important;
+  height: 90px;
   max-width: 240px;
   object-fit: contain;
   background: transparent;
   image-rendering: -webkit-optimize-contrast;
 }
-@media (max-width: 520px){
-  .brand-logo{ height: 92px !important; max-width: 78vw; }
+@media (max-width: 600px){
+  .brand-logo{
+    height: 96px;
+    max-width: 78vw;
+  }
 }
