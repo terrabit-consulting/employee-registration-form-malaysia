@@ -24,8 +24,8 @@ function initRemoveButtons() {
   const setups = [
     { container: "employmentSection", block: ".employment-block" },
     { container: "eduSection",        block: ".edu-block" },
-    { container: "familySection",     block: ".family-block" },
     { container: "certSection",       block: ".cert-block" },
+    { container: "familySection",     block: ".family-block" },
     { container: "emergencySection",  block: ".emergency-block" }
   ];
 
@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user) {
       loginSection.style.display = 'none';
       formWrapper.style.display = 'block';
-      sections = document.querySelectorAll(\'.form-section\');
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
@@ -164,8 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (user) {
         loginSection.style.display = 'none';
         formWrapper.style.display = 'block';
-      sections = document.querySelectorAll(\'.form-section\');
-      showSection(currentSection);
+        showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
         localStorage.setItem("userEmail", user.email);
@@ -184,7 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // script.js
 
 let currentSection = 0;
-let sections = [];
+const sections = document.querySelectorAll('.form-section');
+
 function showSection(index) {
   sections.forEach((section, i) => {
     section.classList.toggle('active', i === index);
@@ -491,8 +490,10 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     },
     contactInfo: {
       email: document.querySelector('[name="email2"]').value,
+      mobileCountryCode: document.querySelector('[name="mobileCountryCode"]')?.value || "",
       mobile: document.querySelector('[name="mobile2"]').value,
       telHome: document.querySelector('[name="telHome"]').value,
+      whatsappCountryCode: document.querySelector('[name="whatsappCountryCode"]')?.value || "",
       whatsappNo: document.querySelector('[name="whatsappNo"]').value,
       linkedInId: document.querySelector('[name="linkedInId"]').value,
       facebook: document.querySelector('[name="facebook"]').value,
@@ -509,12 +510,11 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       socsoNumber: document.querySelector('[name="socsoNumber"]').value,
       majorSkillSet: document.querySelector('[name="majorSkillSet"]').value,
     },
-    employment: extractGroup(".employment-block", ["company", "from", "to", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
+    employment: extractGroup(".employment-block", ["company", "from", "to", "contactCountryCode", "contactNumber", "jobTitle", "officeAddress", "refName", "refPhoneCountryCode", "refPhone", "refPosition", "refEmail", "reasonForLeaving", "lastSalary"]),
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContacts: extractGroup(".emergency-block", ["emergencyName[]","emergencyRelation[]","emergencyPhone[]","emergencyAddress[]","emergencyLocation[]"]),
-    
+    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
     officeUse: {
       costCenterCode: document.querySelector('[name="costCenterCode"]').value,
       costCenterName: document.querySelector('[name="costCenterName"]').value,
@@ -552,22 +552,21 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
 });
 
 
-// ===== Emergency Contact Add More (repeatable) =====
 function addEmergencyContact() {
-  const container = document.getElementById("emergencySection");
-  if (!container) return;
+  const container = document.getElementById('emergencySection');
+  const firstBlock = container.querySelector('.emergency-block');
+  if (!firstBlock) return;
 
-  const first = container.querySelector(".emergency-block");
-  if (!first) return;
+  const clone = firstBlock.cloneNode(true);
 
-  const clone = first.cloneNode(true);
-
-  // Clear values
-  clone.querySelectorAll("input, select, textarea").forEach(el => {
-    if (el.type === "checkbox" || el.type === "radio") el.checked = false;
-    else el.value = "";
+  clone.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
   });
 
+  clone.querySelectorAll('.remove-block-btn').forEach(btn => btn.remove());
+
   container.appendChild(clone);
+
   addRemoveButton(clone, container, ".emergency-block", 1);
 }
