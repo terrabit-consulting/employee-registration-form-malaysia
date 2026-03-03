@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user) {
       loginSection.style.display = 'none';
       formWrapper.style.display = 'block';
+      sections = document.querySelectorAll(\'.form-section\');
       showSection(currentSection);
       toggleMalaysiaFields();
       toggleCitizenshipFields();
@@ -163,7 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (user) {
         loginSection.style.display = 'none';
         formWrapper.style.display = 'block';
-        showSection(currentSection);
+      sections = document.querySelectorAll(\'.form-section\');
+      showSection(currentSection);
         toggleMalaysiaFields();
         toggleCitizenshipFields();
         localStorage.setItem("userEmail", user.email);
@@ -182,8 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // script.js
 
 let currentSection = 0;
-const sections = document.querySelectorAll('.form-section');
-
+let sections = [];
 function showSection(index) {
   sections.forEach((section, i) => {
     section.classList.toggle('active', i === index);
@@ -512,7 +513,7 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
+    emergencyContacts: extractGroup(".emergency-block", ["emergencyName[]","emergencyRelation[]","emergencyPhone[]","emergencyAddress[]","emergencyLocation[]"]),
     
     officeUse: {
       costCenterCode: document.querySelector('[name="costCenterCode"]').value,
@@ -568,7 +569,5 @@ function addEmergencyContact() {
   });
 
   container.appendChild(clone);
-
-  // Add remove button to new block (keep minimum 1 block)
   addRemoveButton(clone, container, ".emergency-block", 1);
 }
