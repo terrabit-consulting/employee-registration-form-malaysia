@@ -559,3 +559,18 @@ button[onclick^="add"]{
 @media (max-width: 600px){
   .brand-logo{height: 104px; max-width: 82vw;}
 }
+
+
+/* ===== Logo focus & responsiveness (override) ===== */
+.brand-logo{
+  height: 110px !important;
+  max-width: 300px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+@media (max-width: 600px){
+  .brand-logo{
+    height: 120px !important;
+    max-width: 86vw !important;
+  }
+}
