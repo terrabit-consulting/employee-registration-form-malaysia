@@ -25,7 +25,8 @@ function initRemoveButtons() {
     { container: "employmentSection", block: ".employment-block" },
     { container: "eduSection",        block: ".edu-block" },
     { container: "familySection",     block: ".family-block" },
-    { container: "certSection",       block: ".cert-block" }
+    { container: "certSection",       block: ".cert-block" },
+    { container: "emergencySection",  block: ".emergency-block" }
   ];
 
   setups.forEach(s => {
@@ -511,13 +512,8 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContact: {
-      name: document.querySelector('[name="emergencyName"]').value,
-      relation: document.querySelector('[name="emergencyRelation"]').value,
-      phone: document.querySelector('[name="emergencyPhone"]').value,
-      address: document.querySelector('[name="emergencyAddress"]').value,
-      location: document.querySelector('[name="emergencyLocation"]').value,
-    },
+    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
+    
     officeUse: {
       costCenterCode: document.querySelector('[name="costCenterCode"]').value,
       costCenterName: document.querySelector('[name="costCenterName"]').value,
@@ -556,19 +552,23 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
 
 
 // ===== Emergency Contact Add More (repeatable) =====
-function addEmergencyContact(){
+function addEmergencyContact() {
   const container = document.getElementById("emergencySection");
-  if(!container) return;
+  if (!container) return;
 
-  const first = container.querySelector(".emergency-block") || container.firstElementChild;
-  if(!first) return;
+  const first = container.querySelector(".emergency-block");
+  if (!first) return;
 
   const clone = first.cloneNode(true);
-  clone.querySelectorAll("input, select, textarea").forEach(el=>{
-    if(el.type==="checkbox" || el.type==="radio"){ el.checked=false; }
-    else{ el.value=""; }
+
+  // Clear values
+  clone.querySelectorAll("input, select, textarea").forEach(el => {
+    if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+    else el.value = "";
   });
 
   container.appendChild(clone);
+
+  // Add remove button to new block (keep minimum 1 block)
   addRemoveButton(clone, container, ".emergency-block", 1);
 }
