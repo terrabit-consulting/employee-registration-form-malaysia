@@ -554,18 +554,9 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
-    officeUse: {
-      costCenterCode: document.querySelector('[name="costCenterCode"]').value,
-      costCenterName: document.querySelector('[name="costCenterName"]').value,
-      actualJoiningDate: document.querySelector('[name="actualJoiningDate"]').value,
-      category: document.querySelector('[name="category"]').value,
-      department: document.querySelector('[name="department"]').value,
-      project: document.querySelector('[name="project"]').value,
-      positionApplied: document.querySelectorAll('[name="officePositionApplied"]')[1]?.value || '',
-      officeUseDate: document.querySelector('[name="officeUseDate"]').value,
-    }
+    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"])
   };
+
 // ✅ Add this line here:
   formData.authenticatedEmail = localStorage.getItem("userEmail");
   
