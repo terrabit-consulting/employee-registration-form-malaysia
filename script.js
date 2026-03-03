@@ -479,10 +479,16 @@ function extractGroup(selector, fields) {
   return data;
 }
 
+let isSubmitting = false;
+
 document.getElementById("multiStepForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  toggleMalaysiaFields();
+  if (isSubmitting) return;
+  isSubmitting = true;
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Submitting..."; }
+toggleMalaysiaFields();
   toggleCitizenshipFields();
 
   for (let i = 0; i < sections.length; i++) {
@@ -555,8 +561,7 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
     emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"])
-  };
-
+    emergencyContact: (() => { const arr = extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]); const first = arr && arr[0] ? arr[0] : {}; return { name: first.emergencyName || "", relation: first.emergencyRelation || "", phone: ((first.emergencyPhoneCountryCode||"") + " " + (first.emergencyPhone||"")).trim(), address: first.emergencyAddress || "", location: first.emergencyLocation || "" }; })(),};
 // ✅ Add this line here:
   formData.authenticatedEmail = localStorage.getItem("userEmail");
   
@@ -580,9 +585,12 @@ document.getElementById("multiStepForm").addEventListener("submit", function (e)
       console.error("⚠️ Submission error:", err);
       alert("⚠️ Submission error: " + err.message);
     });
+  .finally(() => {
+    isSubmitting = false;
+    const submitBtn = document.querySelector(\'button[type="submit"]\');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Submit"; }
+  });
 });
-
-
 function addEmergencyContact() {
   const container = document.getElementById('emergencySection');
   const firstBlock = container.querySelector('.emergency-block');

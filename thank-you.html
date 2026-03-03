@@ -1,113 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Thank You</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      text-align: center;
-      padding: 50px;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
-
-    .logo {
-      max-width: 200px;
-      margin-bottom: 30px;
-    }
-
-    h1 {
-      color: #2e7d32;
-      font-size: 2.5rem;
-    }
-
-    p {
-      font-size: 1.2rem;
-      margin-top: 10px;
-    }
-
-    a, button {
-      display: inline-block;
-      margin-top: 30px;
-      text-decoration: none;
-      color: white;
-      background-color: #1976d2;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-    }
-
-    a:hover, button:hover {
-      background-color: #125ea7;
-    }
-
-    #logoutBtn {
-      margin-left: 10px;
-      background-color: #d32f2f;
-    }
-
-    #logoutBtn:hover {
-      background-color: #b71c1c;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Submitted</title>
+<link rel="stylesheet" href="styles.css">
 <style>
-/* Thank you logo alignment fix */
-.logo img, .thankyou-logo, .thankyou-container img{
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+body{
+  background:#f4f6f9;
+  font-family:Arial, Helvetica, sans-serif;
+  margin:0;
+}
+.thankyou-wrapper{
+  max-width:900px;
+  margin:60px auto;
+  background:#ffffff;
+  border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  padding:40px 30px;
+  text-align:center;
+}
+.thankyou-wrapper img{
+  height:110px;
+  object-fit:contain;
+  margin-bottom:25px;
+}
+.thankyou-wrapper h1{
+  color:#2e7d32;
+  font-size:32px;
+  margin-bottom:15px;
+}
+.thankyou-wrapper p{
+  font-size:16px;
+  color:#333;
+  margin-bottom:10px;
+}
+.btn-primary{
+  background:#1e5aa8;
+  color:#fff;
+  border:none;
+  padding:12px 24px;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:20px;
+}
+.btn-primary:hover{
+  background:#15437f;
+}
+.btn-danger{
+  width:100%;
+  background:#d32f2f;
+  color:#fff;
+  border:none;
+  padding:12px;
+  border-radius:6px;
+  margin-top:30px;
+  cursor:pointer;
+}
+.btn-danger:hover{
+  background:#b71c1c;
+}
+@media(max-width:600px){
+  .thankyou-wrapper{
+    margin:30px 15px;
+    padding:30px 20px;
+  }
+  .thankyou-wrapper img{
+    height:95px;
+  }
 }
 </style>
 </head>
 <body>
 
-  <!-- Logo Section -->
-  <img src="logo.png" alt="Terrabit Consulting Logo" class="logo" />
-
-  <!-- Message -->
-  <h1>✅ Thank You!</h1>
+<div class="thankyou-wrapper">
+  <img src="logo.png" alt="Terrabit Consulting Logo">
+  <h1>Thank You!</h1>
   <p>Your employment application has been submitted successfully.</p>
-  <p>A copy of your submitted data in Excel format has been sent to the email address you provided in the submitted form. Please check your inbox for reference.</p>
+  <p>A copy of your submitted data in Excel format has been sent to the email address you provided. Please check your inbox.</p>
 
-  <!-- Back to Home + Logout -->
-  <a href="index.html">← Back to Form</a>
-  <button id="logoutBtn" style="display: none;">Logout</button>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script>
-    // Initialize Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDhHLzmytXfRB6Xd92Bl9AoRhmDOWTJ1qY",
-      authDomain: "employment-form-login.firebaseapp.com",
-      projectId: "employment-form-login",
-      storageBucket: "employment-form-login.firebasestorage.app",
-      messagingSenderId: "784854094144",
-      appId: "1:784854094144:web:5ec3f9a5120717f806eaa5",
-      measurementId: "G-MYBD4VRD2M"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    // Show logout button if user is logged in
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-      }
-    });
-
-    // Handle logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      firebase.auth().signOut().then(() => {
-        alert('You have been logged out.');
-        localStorage.removeItem("userEmail");
-        window.location.href = "index.html";
-      });
-    });
-  </script>
+  <button class="btn-primary" onclick="window.location.href='index.html'">← Back to Form</button>
+  <button class="btn-danger" onclick="window.location.href='logout.html'">Logout</button>
+</div>
 
 </body>
 </html>

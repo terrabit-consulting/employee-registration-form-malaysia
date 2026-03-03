@@ -574,23 +574,3 @@ button[onclick^="add"]{
     max-width: 86vw !important;
   }
 }
-
-/* ===== Uniform form control styling ===== */
-input[type="text"], input[type="email"], input[type="date"], input[type="number"], select, textarea{
-  font-size: 15px;
-  line-height: 1.25;
-}
-select{height: 44px;}
-input, textarea{min-height: 44px;}
-label{font-size: 14px; font-weight: 600; text-transform: none;}
-h2{letter-spacing: .2px;}
-
-/* ===== Logo focus (safe) ===== */
-.brand-logo{
-  height: 110px !important;
-  max-width: 300px !important;
-  object-fit: contain !important;
-}
-@media (max-width: 600px){
-  .brand-logo{height: 120px !important; max-width: 86vw !important;}
-}
