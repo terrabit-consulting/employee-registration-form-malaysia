@@ -539,71 +539,8 @@ button[onclick^="add"]{
   filter: brightness(.95);
 }
 
-/* ===== Responsive Terrabit logo (bigger + focused) ===== */
-.brand-logo{
-  height: 96px !important;
-  width: auto !important;
-  object-fit: contain;
-}
 
-@media (max-width: 900px){
-  .brand-logo{ height: 86px !important; }
-}
-
-@media (max-width: 520px){
-  .brand-row{
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  .brand-text{ text-align: center; }
-  .brand-logo{
-    height: 78px !important;
-    max-width: 80vw;
-  }
-}
-
-/* ===== Inline country code dropdown next to phone number ===== */
-.phone-group{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-.phone-group select{
-  width: 190px;
-  min-width: 170px;
-}
-.phone-group input{
-  flex:1;
-}
-
-/* ===== Focused, responsive Terrabit logo ===== */
-.brand-logo{
-  height: 120px !important;
-  width: auto !important;
-  object-fit: contain;
-}
-@media (max-width: 600px){
-  .brand-row{
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  .brand-text{ text-align:center; }
-  .brand-logo{ height: 95px !important; max-width: 80vw; }
-}
-
-/* ===== Uniform input sizing ===== */
-input, select, textarea{ font-size:14px; }
-
-/* ===== Phone dropdown responsive tweaks ===== */
-@media (max-width: 520px){
-  .phone-group{ flex-direction: column; align-items: stretch; }
-  .phone-group select{ width: 100%; min-width: 0; }
-}
-
-
-/* ===== Logo focus & responsiveness (requested) ===== */
+/* ===== Logo focus & responsiveness ===== */
 .brand-logo{
   height: 86px !important;
   max-width: 240px;
@@ -612,8 +549,5 @@ input, select, textarea{ font-size:14px; }
   image-rendering: -webkit-optimize-contrast;
 }
 @media (max-width: 520px){
-  .brand-logo{
-    height: 92px !important;
-    max-width: 78vw;
-  }
+  .brand-logo{ height: 92px !important; max-width: 78vw; }
 }
