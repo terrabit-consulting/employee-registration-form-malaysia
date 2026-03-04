@@ -208,11 +208,23 @@ function applyCitizenshipMalaysiaRules() {
   clearIfHidden(addrMY, showAddrMY);
 
   // Malaysia stay fields:
-  // - If in MY: show Years MY + Start + End for ALL
-  // - If not in MY: show Years MY + Start + End ONLY for Malaysian citizens
+  // - If in MY: show Start+End for ALL
+  // - If not in MY: show Start+End ONLY for Malaysian citizens
   const showMYStay = !!isInMY || (!!isMalaysian && !isInMY);
-  [yearsMY, fromMY, toMY].forEach(el => setFieldVisible(el, showMYStay));
-  [yearsMY, fromMY, toMY].forEach(el => clearIfHidden(el, showMYStay));
+
+  // Years in Malaysia is redundant when (In MY = Yes AND Citizenship = Malaysia)
+  const showYearsMY = showMYStay && !(isInMY && isMalaysian);
+
+  // Apply visibility
+  setFieldVisible(yearsMY, showYearsMY);
+  [fromMY, toMY].forEach(el => setFieldVisible(el, showMYStay));
+
+  // Clear if hidden
+  clearIfHidden(yearsMY, showYearsMY);
+  [fromMY, toMY].forEach(el => clearIfHidden(el, showMYStay));
+
+  // Required rules
+  if (yearsMY) yearsMY.required = !!showYearsMY;
 
   // End date in MY is optional (do not force required)
   if (toMY) toMY.required = false;
