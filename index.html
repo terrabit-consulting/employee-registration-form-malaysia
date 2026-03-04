@@ -743,7 +743,7 @@
 <option value="+260">Zambia (+260)</option>
 <option value="+263">Zimbabwe (+263)</option>
             </select>
-            <input type="tel" name="mobile2" required pattern="[0-9]{10,15}" title="Please enter a valid mobile number (10–15 digits)" />
+            <input type="tel" inputmode="numeric" pattern="[0-9]*" name="mobile2" required pattern="[0-9]{10,15}" title="Please enter a valid mobile number (10–15 digits)" />
           </div>
          <label>Tel (Home)</label>
         <input type="text" name="telHome" />
@@ -1960,7 +1960,7 @@
 <option value="+260">Zambia (+260)</option>
 <option value="+263">Zimbabwe (+263)</option>
             </select>
-            <input type="tel" name="emergencyPhone[]" required />
+            <input type="tel" inputmode="numeric" pattern="[0-9]*" name="emergencyPhone[]" required />
           </div>
 
         <label>Address *</label>

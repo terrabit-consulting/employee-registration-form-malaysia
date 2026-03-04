@@ -608,3 +608,9 @@ button[onclick^="add"]{
 @media (max-width: 480px){
   .brand-logo{height: 84px;}
 }
+
+.brand-logo{
+height:90px !important;
+width:auto;
+object-fit:contain;
+}

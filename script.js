@@ -1,3 +1,15 @@
+
+function mergePhone(codeId,numberId){
+ const c=document.getElementById(codeId);
+ const n=document.getElementById(numberId);
+ if(!c||!n) return "";
+ const code=c.value||"";
+ const num=n.value||"";
+ if(!code) return num;
+ if(!num) return code;
+ return code+" "+num;
+}
+
 // ===== Add/Remove block support for Add More sections =====
 function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
   if (blockEl.querySelector(".remove-block-btn")) return;
