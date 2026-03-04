@@ -628,9 +628,39 @@ toggleMalaysiaFields();
     education: extractGroup(".edu-block", ["eduSchool", "eduInstitute", "eduYear", "eduGraduated", "eduDegree", "eduGPA", "eduStream"]),
     certifications: extractGroup(".cert-block", ["certInstitution", "certCompletionDate", "certCourseTitle", "certNumber"]),
     family: extractGroup(".family-block", ["familyName", "familyRelation", "familyPassport", "familyDOB", "familyOccupation"]),
-    emergencyContacts: extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]),
-    emergencyContact: (() => { const arr = extractGroup(".emergency-block", ["emergencyName", "emergencyRelation", "emergencyPhoneCountryCode", "emergencyPhone", "emergencyAddress", "emergencyLocation"]); const first = arr && arr[0] ? arr[0] : {}; return { name: first.emergencyName || "", relation: first.emergencyRelation || "", phone: ((first.emergencyPhoneCountryCode||"") + " " + (first.emergencyPhone||"")).trim(), address: first.emergencyAddress || "", location: first.emergencyLocation || "" }; })()
-  };
+    emergencyContact: (() => {
+        const raw = extractGroup(".emergency-block", [
+          "emergencyName",
+          "emergencyRelation",
+          "emergencyPhoneCountryCode",
+          "emergencyPhone",
+          "emergencyAddress",
+          "emergencyLocation",
+        ]);
+        return raw
+          .map((c) => ({
+            name: c.emergencyName || "",
+            relation: c.emergencyRelation || "",
+            phone: ((c.emergencyPhoneCountryCode || "") + " " + (c.emergencyPhone || "")).trim(),
+            address: c.emergencyAddress || "",
+            location: c.emergencyLocation || "",
+          }))
+          .filter((c) => Object.values(c).some((v) => (v || "").toString().trim() !== ""));
+      })(),
+      emergencyContactSingle: (() => {
+        const first = document.querySelector(".emergency-block");
+        if (!first) return {};
+        const name = first.querySelector('[name="emergencyName[]"]')?.value?.trim() || "";
+        const relation = first.querySelector('[name="emergencyRelation[]"]')?.value?.trim() || "";
+        const cc = first.querySelector('[name="emergencyPhoneCountryCode[]"]')?.value?.trim() || "";
+        const phone = first.querySelector('[name="emergencyPhone[]"]')?.value?.trim() || "";
+        const address = first.querySelector('[name="emergencyAddress[]"]')?.value?.trim() || "";
+        const location = first.querySelector('[name="emergencyLocation[]"]')?.value?.trim() || "";
+        const obj = { name, relation, phone: (cc + " " + phone).trim(), address, location };
+        if (Object.values(obj).every((v) => (v || "").toString().trim() === "")) return {};
+        return obj;
+      })()
+};
 // ✅ Add this line here:
   formData.authenticatedEmail = localStorage.getItem("userEmail");
   

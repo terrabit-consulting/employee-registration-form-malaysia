@@ -614,3 +614,9 @@ height:90px !important;
 width:auto;
 object-fit:contain;
 }
+
+/* FINAL OVERRIDE: Terrabit logo bigger + responsive */
+.brand-logo{height:120px !important; max-width:320px !important; width:auto !important; object-fit:contain !important;}
+@media (max-width:768px){.brand-logo{height:130px !important; max-width:88vw !important;}}
+@media (max-width:480px){.brand-logo{height:140px !important; max-width:92vw !important;}}
+
