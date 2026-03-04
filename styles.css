@@ -593,3 +593,18 @@ button[onclick^="add"]{
     max-height: 78px;
   }
 }
+
+
+/* ===== Brand Logo (Bigger + Responsive) ===== */
+.brand-row{align-items:center;}
+.brand-logo{
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+@media (max-width: 768px){
+  .brand-logo{height: 74px;}
+}
+@media (max-width: 480px){
+  .brand-logo{height: 84px;}
+}

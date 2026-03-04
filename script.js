@@ -19,6 +19,26 @@ function addRemoveButton(blockEl, containerEl, blockSelector, minBlocks = 1) {
   blockEl.appendChild(btn);
 }
 
+
+function syncRequiredAsterisks(scopeEl = document) {
+  const fields = scopeEl.querySelectorAll('input, select, textarea');
+  fields.forEach(field => {
+    const label = field.previousElementSibling && field.previousElementSibling.tagName === 'LABEL'
+      ? field.previousElementSibling
+      : null;
+    if (!label) return;
+
+    if (field.offsetParent === null) return;
+
+    const hasStar = /\*\s*$/.test(label.textContent.trim());
+    if (field.required) {
+      if (!hasStar) label.textContent = label.textContent.trim() + ' *';
+    } else {
+      if (hasStar) label.textContent = label.textContent.replace(/\s*\*\s*$/, '');
+    }
+  });
+}
+
 function initRemoveButtons() {
   // ✅ UPDATED: container IDs matched with current HTML
   const setups = [
@@ -40,7 +60,10 @@ function initRemoveButtons() {
       addRemoveButton(b, c, s.block, 1);
     });
   });
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 
 
@@ -235,7 +258,10 @@ function applyCitizenshipMalaysiaRules() {
   }
 
   // Note: YearsOfStayHome always required; do not clear.
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 // Keep existing onchange hooks
 function toggleMalaysiaFields(){ applyCitizenshipMalaysiaRules(); }
@@ -299,6 +325,7 @@ function showSection(index) {
     section.classList.toggle('active', i === index);
   });
   updateProgressBar(index);
+  try { syncRequiredAsterisks(sections[index]); } catch(e) {}
 }
 
 function updateProgressBar(index) {
@@ -378,7 +405,10 @@ function toggleOtherField(selectElement, targetDivId) {
       input.value = '';
     }
   }
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 
 
@@ -398,7 +428,10 @@ function toggleMarriedFields(selectElem) {
     marriageDateField.value = '';
     kidsCountField.value = '';
   }
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 
 function addEmployment() {
@@ -418,7 +451,10 @@ function addEmployment() {
 
   // Add remove option to newly added block (min 1 required)
   addRemoveButton(clone, container, ".employment-block", 1);
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 function addEducation() {
   const container = document.getElementById('eduSection');
@@ -438,7 +474,10 @@ function addEducation() {
   try { bindGraduationYearToggles(); } catch(e) {}
 
   addRemoveButton(clone, container, ".edu-block", 1);
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 function addFamily() {
   const container = document.getElementById('familySection');
@@ -457,7 +496,10 @@ function addFamily() {
   container.appendChild(clone);
 
   addRemoveButton(clone, container, ".family-block", 1);
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 
 function addCertification() {
   const container = document.getElementById('certSection');
@@ -473,7 +515,10 @@ function addCertification() {
   container.appendChild(clone);
 
   addRemoveButton(clone, container, ".cert-block", 1);
+
+  try { syncRequiredAsterisks(document); } catch(e) {}
 }
+
 function extractGroup(selector, fields) {
   const blocks = document.querySelectorAll(selector);
   const data = [];
