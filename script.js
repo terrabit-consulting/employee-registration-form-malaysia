@@ -131,6 +131,104 @@ function attachExcelSafeGuards() {
 }
 
 
+
+function applyCitizenshipMalaysiaRules() {
+  const currentEl = document.getElementById('currentlyInMalaysia');
+  const citizenshipEl = document.getElementById('citizenship');
+
+  const isInMY = currentEl && (currentEl.value === 'Yes');
+  const citizenship = (citizenshipEl && citizenshipEl.value ? citizenshipEl.value : '').trim();
+  const isMalaysian = citizenship.toLowerCase() === 'malaysia';
+  const isOther = citizenship.toLowerCase() === 'other';
+
+  // Helper: show/hide input AND its previous label
+  const setFieldVisible = (el, visible) => {
+    if (!el) return;
+    const label = el.previousElementSibling && el.previousElementSibling.tagName === "LABEL"
+      ? el.previousElementSibling
+      : null;
+    if (label) label.style.display = visible ? "" : "none";
+    el.style.display = visible ? "" : "none";
+  };
+
+  const clearIfHidden = (el, visible) => {
+    if (!el) return;
+    if (!visible) {
+      if (el.tagName === "SELECT") el.value = "";
+      else el.value = "";
+    }
+  };
+
+  // Sections/fields
+  const homeAddr = document.querySelector('[name="homeCountryAddress"]');
+  const yearsHome = document.getElementById('yearsOfStayHome') || document.querySelector('[name="yearsOfStayHome"]');
+
+  const addrMY = document.getElementById('completeAddressMalaysia');
+  const yearsMY = document.getElementById('yearsOfStayMalaysia');
+  const fromMY  = document.getElementById('durationStayFrom') || document.querySelector('[name="durationStayFrom"]');
+  const toMY    = document.getElementById('durationStayTo') || document.querySelector('[name="durationStayTo"]');
+
+  const icNumber = document.getElementById('icNumber');
+  const icPlace  = document.querySelector('[name="icPlaceOfIssue"]');
+  const icIssue  = document.querySelector('[name="icDateOfIssue"]');
+  const icExpiry = document.querySelector('[name="icDateOfExpiry"]');
+
+  const primaryPassport = document.getElementById('primaryPassport');
+  const passportPlace   = document.querySelector('[name="passportPlaceOfIssue"]');
+  const passportIssue   = document.querySelector('[name="passportDateOfIssue"]');
+  const passportExpiry  = document.querySelector('[name="passportDateOfExpiry"]');
+
+  // Citizenship "Other" div
+  const otherDiv = document.getElementById('citizenshipOtherDiv');
+  if (otherDiv) otherDiv.style.display = isOther ? "" : "none";
+
+  // Always collect passport for everyone (required + visible)
+  [primaryPassport, passportPlace, passportIssue, passportExpiry].forEach(el => setFieldVisible(el, true));
+  if (primaryPassport) primaryPassport.required = true;
+  if (passportPlace) passportPlace.required = true;
+  if (passportIssue) passportIssue.required = true;
+  if (passportExpiry) passportExpiry.required = true;
+
+  // IC only for Malaysians (required when visible)
+  [icNumber, icPlace, icIssue, icExpiry].forEach(el => setFieldVisible(el, isMalaysian));
+  if (icNumber) icNumber.required = isMalaysian;
+  if (icPlace)  icPlace.required  = isMalaysian;
+  if (icIssue)  icIssue.required  = isMalaysian;
+  if (icExpiry) icExpiry.required = isMalaysian;
+
+  // Country of Citizenship Address + Years (always visible & required)
+  setFieldVisible(homeAddr, true);
+  setFieldVisible(yearsHome, true);
+  if (homeAddr) homeAddr.required = true;
+  if (yearsHome) yearsHome.required = true;
+
+  // Malaysia address: show ONLY when currently in Malaysia AND not Malaysian citizen
+  const showAddrMY = !!isInMY && !isMalaysian;
+  setFieldVisible(addrMY, showAddrMY);
+  clearIfHidden(addrMY, showAddrMY);
+
+  // Malaysia stay fields:
+  // - If in MY: show Years MY + Start + End for ALL
+  // - If not in MY: show Years MY + Start + End ONLY for Malaysian citizens
+  const showMYStay = !!isInMY || (!!isMalaysian && !isInMY);
+  [yearsMY, fromMY, toMY].forEach(el => setFieldVisible(el, showMYStay));
+  [yearsMY, fromMY, toMY].forEach(el => clearIfHidden(el, showMYStay));
+
+  // End date in MY is optional (do not force required)
+  if (toMY) toMY.required = false;
+
+  // Clear IC fields if not Malaysian
+  if (!isMalaysian) {
+    [icNumber, icPlace, icIssue, icExpiry].forEach(el => clearIfHidden(el, false));
+  }
+
+  // Note: YearsOfStayHome always required; do not clear.
+}
+
+// Keep existing onchange hooks
+function toggleMalaysiaFields(){ applyCitizenshipMalaysiaRules(); }
+function toggleCitizenshipFields(){ applyCitizenshipMalaysiaRules(); }
+
 document.addEventListener('DOMContentLoaded', () => {
   attachNumericGuards();
   initRemoveButtons();
@@ -270,106 +368,7 @@ function toggleOtherField(selectElement, targetDivId) {
   }
 }
 
-function toggleMalaysiaFields() {
-  const currentEl = document.getElementById('currentlyInMalaysia');
-  const isInMY = currentEl && (currentEl.value === 'Yes');
 
-  const addr = document.getElementById('completeAddressMalaysia');
-  const years = document.getElementById('yearsOfStayMalaysia');
-  const from  = document.querySelector('[name="durationStayFrom"]');
-  const to    = document.querySelector('[name="durationStayTo"]');
-
-  const setFieldVisible = (el, visible) => {
-    if (!el) return;
-    const label = el.previousElementSibling && el.previousElementSibling.tagName === "LABEL"
-      ? el.previousElementSibling
-      : null;
-    if (label) label.style.display = visible ? "" : "none";
-    el.style.display = visible ? "" : "none";
-  };
-
-  // Show/Hide Malaysia stay related fields
-  [years, from, to].forEach(el => setFieldVisible(el, !!isInMY));
-  // Address field was in your earlier logic; keep it also controlled
-  setFieldVisible(addr, !!isInMY);
-
-  // Required only for Years of Stay (Malaysia) when in MY
-  if (years) years.required = !!isInMY;
-
-  if (!isInMY) {
-    [addr, years, from, to].forEach(el => { if (el) el.value = ""; });
-  }
-}
-
-function toggleCitizenshipFields() {
-  const citizenshipEl = document.getElementById('citizenship');
-  if (!citizenshipEl) return;
-
-  const citizenship = (citizenshipEl.value || "").trim();
-  const isMalaysian = citizenship.toLowerCase() === "malaysia";
-
-  // Inputs
-  const icNumber = document.getElementById('icNumber');
-  const icPlace  = document.querySelector('[name="icPlaceOfIssue"]');
-  const icIssue  = document.querySelector('[name="icDateOfIssue"]');
-  const icExpiry = document.querySelector('[name="icDateOfExpiry"]');
-
-  const primaryPassport = document.getElementById('primaryPassport');
-  const passportPlace   = document.querySelector('[name="passportPlaceOfIssue"]');
-  const passportIssue   = document.querySelector('[name="passportDateOfIssue"]');
-  const passportExpiry  = document.querySelector('[name="passportDateOfExpiry"]');
-
-  const yearsHome = document.getElementById('yearsOfStayHome'); // Country of Citizenship
-  const yearsMY   = document.getElementById('yearsOfStayMalaysia');
-
-  // Helper: hide/show field (label + control)
-  const setFieldVisible = (el, visible) => {
-    if (!el) return;
-    const label = el.previousElementSibling && el.previousElementSibling.tagName === "LABEL"
-      ? el.previousElementSibling
-      : null;
-    if (label) label.style.display = visible ? "" : "none";
-    el.style.display = visible ? "" : "none";
-  };
-
-  // Malaysian: show IC fields, hide Passport fields; Non-Malaysian: show Passport fields, hide IC fields
-  [icNumber, icPlace, icIssue, icExpiry].forEach(el => setFieldVisible(el, isMalaysian));
-  [primaryPassport, passportPlace, passportIssue, passportExpiry].forEach(el => setFieldVisible(el, !isMalaysian));
-
-  // Required toggles
-  if (icNumber) icNumber.required = isMalaysian;
-  if (icPlace)  icPlace.required  = isMalaysian;
-  if (icIssue)  icIssue.required  = isMalaysian;
-  if (icExpiry) icExpiry.required = isMalaysian;
-
-  if (primaryPassport) primaryPassport.required = !isMalaysian;
-  if (passportPlace)   passportPlace.required   = !isMalaysian;
-  if (passportIssue)   passportIssue.required   = !isMalaysian;
-  if (passportExpiry)  passportExpiry.required  = !isMalaysian;
-
-  // Years of stay (Country of Citizenship) should be hidden for Malaysian citizens
-  if (yearsHome) {
-    setFieldVisible(yearsHome, !isMalaysian);
-    yearsHome.required = !isMalaysian;
-    if (isMalaysian) yearsHome.value = "";
-  }
-
-  // If Malaysian citizen, "Years of Stay (Malaysia)" remains controlled by Currently in Malaysia toggle
-  if (yearsMY && isMalaysian === false) {
-    // Still fine: YearsMY required only if currently in Malaysia == Yes (handled in toggleMalaysiaFields)
-    // Nothing to do here.
-  }
-
-  // Clear hidden fields to avoid confusion
-  if (isMalaysian) {
-    [primaryPassport, passportPlace, passportIssue, passportExpiry].forEach(el => { if (el) el.value = ""; });
-  } else {
-    [icNumber, icPlace, icIssue, icExpiry].forEach(el => { if (el) el.value = ""; });
-  }
-
-  // Re-apply Malaysia stay toggle (because required rules interact)
-  toggleMalaysiaFields();
-}
 
 function toggleMarriedFields(selectElem) {
   const marriedDiv = document.getElementById('marriedFields');

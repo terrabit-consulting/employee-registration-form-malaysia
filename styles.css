@@ -574,3 +574,22 @@ button[onclick^="add"]{
     max-width: 86vw !important;
   }
 }
+
+
+/* --- Logo: Bigger + responsive, without breaking alignment --- */
+.header-logo img, .logo img, .company-logo img {
+  max-height: 56px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 768px){
+  .header-logo img, .logo img, .company-logo img {
+    max-height: 68px;
+  }
+}
+@media (max-width: 480px){
+  .header-logo img, .logo img, .company-logo img {
+    max-height: 78px;
+  }
+}
